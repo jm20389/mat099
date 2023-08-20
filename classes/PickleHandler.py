@@ -8,10 +8,6 @@ class PickleHandler:
     pickleDir =   './data-pickle/'
     config_file = 'classes/server.json'
 
-    # ftp_server = '51.68.199.40'
-    # ftp_user =   'ubuntuftp'
-    # ftp_pass =   'ubuntuftp'
-
     def __init__(self, pickleDir = None):
         self.pickleDir = './data-pickle' if pickleDir is not None else pickleDir
 
@@ -35,11 +31,11 @@ class PickleHandler:
             return object_reloaded
     # Load numpy's binary object using np.load: np.load(filepath, allow_pickle = True).item()
 
+
     """
     FTP link
 
     """
-
     @staticmethod
     def upload(obj, remote_directory = None):
         config =            PickleHandler.load_config()
@@ -91,6 +87,26 @@ class PickleHandler:
 
             return object_reloaded
 
+        except Exception as e:
+            print(f'An error occurred: {e}')
+            return None
+
+    @staticmethod
+    def nlst(remote_directory = None):
+        config =            PickleHandler.load_config()
+        remote_directory =  config['pickleDir'] if remote_directory is None else remote_directory
+        ftp_server =        config['ftp_server']
+        ftp_user =          config['ftp_user']
+        ftp_pass =          config['ftp_pass']
+
+        try:
+            with FTP(ftp_server) as ftp:
+                ftp.login(ftp_user, ftp_pass)
+                ftp.cwd(remote_directory)
+                file_list = ftp.nlst()
+                print(f'Pickle objects in server: {ftp_server}, directory: {remote_directory}')
+                print(file_list)
+                return file_list
         except Exception as e:
             print(f'An error occurred: {e}')
             return None

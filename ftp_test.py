@@ -1,9 +1,15 @@
 from classes import *
 
+PickleHandler.nlst()
+quit()
 
-myName2 = 'Anna'
-PickleHandler.upload(PickleHandler, myName2)
+action = 'upload1'
+testFile762 = 'Freddy'
 
-# retrieved_name = PickleHandler.download('myName2')
-# print('downloaded: ')
-# print(retrieved_name)
+if action == 'upload':
+    PickleHandler.uploadOld(testFile762)
+    print('File was uploaded')
+else:
+    retrieved_name = PickleHandler.download('testFile762')
+    print('downloaded the file: ')
+    print(retrieved_name)
