@@ -84,16 +84,14 @@ The resulting ELA image, denoted as
 E, highlights regions where there were significant changes in pixel values after compression, indicating potential areas of manipulation.
 
 ```{=latex}
-Copy code
-E(x, y) = \left | I(x, y) - I_{\text{compressed}}(x, y) \right |
+E(x, y) = test
 ```
 Pixel Value Scaling:
 The pixel values in the ELA image are then scaled to enhance the visual differences between manipulated and unmanipulated regions. This scaling is typically done using a normalization factor 
 
 s to stretch the pixel values across the full intensity range (0 to 255).
 ```{=latex}
-Copy code
-E'(x, y) = s \times E(x, y)
+E'(x, y) = test
 ```
 Visualization and Analysis:
 The final scaled ELA image, denoted as 
