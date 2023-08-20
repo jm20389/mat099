@@ -3,6 +3,6 @@ data-pickle/
 classes/server.json
 classes/__pycache__
 datasets/data-dresden
-datasets/data-korus/original
+datasets/data-korus/originala
 output/gan_images2
 __pycache__/
