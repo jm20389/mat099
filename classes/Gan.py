@@ -3,6 +3,9 @@ from tensorflow.keras.layers import Input, Dense, LeakyReLU, Dropout, BatchNorma
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import SGD, Adam
 
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow info and warning messages
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

@@ -1,3 +1,5 @@
+# Testing pickle object handler: save and load, to external ftp server
+
 from classes import *
 
 PickleHandler.nlst()

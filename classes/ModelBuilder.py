@@ -4,6 +4,10 @@ import tensorflow as tf
 import keras
 from matplotlib      import pyplot as plt
 from sklearn.metrics import roc_curve, roc_auc_score
+import os
+
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow info and warning messages
 
 class ModelBuilder:
     def __init__(self, epochs, batch_size, optimizer, metrics, loss, early_stopping, model = None):
