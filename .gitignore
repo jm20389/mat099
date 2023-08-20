@@ -1,5 +1,6 @@
 PRNU/
 data-pickle/
-datasets/
+datasets/data-dresden
+datasets/data-korus/original
 output/gan_images2
 __pycache__/
