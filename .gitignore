@@ -1,5 +1,7 @@
 PRNU/
 data-pickle/
+classes/server.json
+classes/__pycache__
 datasets/data-dresden
 datasets/data-korus/original
 output/gan_images2
