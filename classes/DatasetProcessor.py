@@ -27,7 +27,7 @@ class DatasetProcessor:
 
         for camera in self.cameras:
             for type in ['pristine', 'tampered-realistic']:
-                dirContents =   os.listdir(self.dataDir + '/' + camera + '/' + type)[:30]
+                dirContents =   os.listdir(self.dataDir + '/' + camera + '/' + type)
                 picDirs +=      [self.dataDir + '/' + camera + '/' + type + '/' + picDir for picDir in dirContents]
                 camera_model += [camera] * len(dirContents)
                 tampered +=     [type] * len(dirContents)

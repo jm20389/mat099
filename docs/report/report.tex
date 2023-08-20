@@ -1,0 +1,247 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  11pt,
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[]{times}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Review of latest SOTA image forgery methods},
+  pdfauthor={Jose C. Mendoza-Jimenez},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Review of latest SOTA image forgery methods}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Master Thesis Dissertation}
+\author{Jose C. Mendoza-Jimenez}
+\date{31 julio 2023}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+We trained a deep convolutional neural network to classify 12,630
+low-resolution pictures from the German Traffic Sign Recognition
+Benchmark (GTSRB). On the test data, we achieved top-1 and top-3
+accuracies of 97.9\% and 99.3\% The neural network, which has 1,225,803
+parameters, consists of 4 convolutional layers, 2 MaxPooling layers, 6
+BatchNormalization layers, 5 Dropout layers and a final 43-way softmax.
+\end{abstract}
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\pagebreak
+
+\hypertarget{intro}{%
+\section{1. Introduction}\label{intro}}
+
+\textbf{Summary of the task and main goals/contributions/insights of the
+project.} Main introduction{[}\^{}1{]} {[}\^{}1{]}: Test caption All the
+deep learning methods and analysis have been deployed using Google's
+open-source software libraries \textbf{Tensorflow \& Keras}\footnote{\url{https://www.tensorflow.org/}}
+
+\hypertarget{sec:literature}{%
+\section{2. Literature review and related work}\label{sec:literature}}
+
+Test citation (\protect\hyperlink{ref-senet}{Hu 2018}) achieving a
+2.25\% top-five error rate in 2017 at the ILSVRC.
+
+\pagebreak
+
+\hypertarget{description-of-the-task-and-dataset}{%
+\section{3. Description of the task and
+dataset}\label{description-of-the-task-and-dataset}}
+
+\pagebreak
+
+\hypertarget{image-preprocessing}{%
+\section{4. Image preprocessing}\label{image-preprocessing}}
+
+\hypertarget{ela}{%
+\section{\# 4.1 ELA}\label{ela}}
+
+Error Level Analysis (ELA) is a technique used in digital image
+forensics to detect potential image forgeries or manipulations. It
+leverages the inherent characteristics of lossy image compression
+algorithms, such as JPEG, to highlight regions in an image that may have
+been tampered with. The core idea behind ELA is to compare the original
+image with a re-compressed version to detect areas that exhibit
+significantly different error levels due to alterations.
+
+To explain ELA mathematically, we will use the following notations:
+
+Let I be the original image that we want to analyze. Let compressed I
+compressed be the re-compressed version of the image I using a lossy
+compression algorithm, such as JPEG, with a specific compression
+quality. The ELA process involves the following steps:
+
+Generate ELA Image: To obtain the ELA image, we first perform the
+following: Save the original image I as a temporary JPEG file using the
+same compression quality as the desired analysis. Compute the absolute
+pixel-wise difference between the original image I and the re-compressed
+version compressed compressed . The resulting ELA image, denoted as E,
+highlights regions where there were significant changes in pixel values
+after compression, indicating potential areas of manipulation.
+
+Copy code
+E(x, y) = \left | I(x, y) - I_{\text{compressed}}(x, y) \right |
+
+Pixel Value Scaling: The pixel values in the ELA image are then scaled
+to enhance the visual differences between manipulated and unmanipulated
+regions. This scaling is typically done using a normalization factor
+
+s to stretch the pixel values across the full intensity range (0 to
+255).
+
+Copy code
+E'(x, y) = s \times E(x, y)
+
+Visualization and Analysis: The final scaled ELA image, denoted as is
+visually inspected. Areas with significant brightness variations suggest
+potential forgery or manipulation, as these regions have undergone more
+changes during the re-compression process compared to the rest of the
+image. ELA is useful for detecting various types of image manipulations,
+such as copy-move forgery, where regions from one part of the image are
+copied and pasted elsewhere, or splicing, where parts of one image are
+merged into another.
+
+In conclusion, Error Level Analysis (ELA) is a mathematical technique
+that exploits the characteristics of lossy compression to highlight
+potential image manipulations. By comparing the original image with a
+re-compressed version and analyzing the pixel-wise differences, ELA can
+help identify areas that may have been tampered with, making it a
+valuable tool in the field of digital image forensics.
+
+\pagebreak
+
+\hypertarget{methodology}{%
+\section{5. Methodology}\label{methodology}}
+
+\pagebreak
+
+\hypertarget{experimental-setting}{%
+\section{6. Experimental setting}\label{experimental-setting}}
+
+\pagebreak
+
+\hypertarget{results}{%
+\section{7. Results}\label{results}}
+
+\pagebreak
+
+\hypertarget{analysis}{%
+\section{8. Analysis}\label{analysis}}
+
+\pagebreak
+
+\hypertarget{conclusion-and-future-work}{%
+\section{9. Conclusion and future
+work}\label{conclusion-and-future-work}}
+
+\pagebreak
+
+\hypertarget{appendix-1}{%
+\section{Appendix 1}\label{appendix-1}}
+
+\hypertarget{additional-visualizations-from-exploratory-data-analysis}{%
+\subsection{Additional visualizations from exploratory data
+analysis}\label{additional-visualizations-from-exploratory-data-analysis}}
+
+\pagebreak
+
+\hypertarget{citations}{%
+\section*{Citations}\label{citations}}
+\addcontentsline{toc}{section}{Citations}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-senet}{}}%
+Hu, Jie. 2018. {``{Crafting GBD-Net for Object Detection}.''} \emph{IEEE
+Transactions on Pattern Analysis and Machine Intelligence}.
+
+\end{CSLReferences}
+
+\end{document}
