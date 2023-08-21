@@ -46,6 +46,44 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Digital image forensics plays a pivotal role in detecting image manipulations and forgeries. This project centers around the development of an advanced technique leveraging Photo Response Non-Uniformity (PRNU) patterns. The goal is to create a robust method for identifying potential image tampering and ensuring the integrity of digital visual content. This report presents the methodology, experimental results, and analysis of our PRNU-based approach.
 
+## 1.1 Main concepts
+
+### 1.1.1 PRNU
+
+Photo Response Non-Uniformity (PRNU) is a fundamental characteristic inherent to individual image sensors, arising from imperfections and variations during the manufacturing process. It manifests as a unique noise pattern that is present in the output of each sensor pixel when exposed to the same uniform illumination. PRNU is mainly attributed to variations in pixel sensitivity, dark current, and other sensor-specific factors. This noise pattern can be considered akin to a "fingerprint" for the camera sensor and is often treated as a quasi-unique identifier for digital images. PRNU has found significant applications in the field of digital image forensics, where it is employed for source camera identification and authenticity verification. By analyzing the PRNU noise pattern extracted from a given image, experts can determine the camera that captured the image, facilitating the identification of image origins, tampering detection, and even establishing the credibility of digital evidence in legal cases. The ability of PRNU to reveal subtle sensor-specific noise characteristics has revolutionized the field of multimedia forensics, playing a pivotal role in ensuring the integrity and traceability of digital imagery.
+
+
+$$
+\text{PRNU}(\mathbf{I}) = \frac{\mathbf{I} - \mathbf{K} \odot \mathbf{I}}{\mathbf{K} \odot \mathbf{I}}
+$$
+
+### 1.1.2 PSNR
+
+Peak Signal-to-Noise Ratio (PSNR) is a fundamental image quality metric used to assess the fidelity of a reconstructed or compressed image when compared to its original, reference image. PSNR quantifies the level of distortion or noise introduced during the image compression or transmission process and is widely employed in various fields such as image processing, computer vision, and multimedia technology.
+
+Mathematically, PSNR is calculated as the ratio of the peak signal power (which represents the maximum possible pixel value of the image) to the mean squared error (MSE) between the original and the reconstructed images. The formula for PSNR is typically expressed in decibels (dB):
+
+### 1.1.3 Flatfield and natural images
+
+**Flatfield Images**
+Flatfield images, also known as flat-field calibration images or flat frames, are images taken with a uniform source of light, covering the entire field of view of a camera or imaging device. The purpose of flatfield images is to account for variations in sensitivity and other imperfections across the sensor or detector of the imaging device. These variations can result from differences in pixel response, lens vignetting, and dust or artifacts on the sensor's surface. By dividing the actual image by a flatfield image, these variations can be corrected, resulting in more accurate and consistent image data.
+
+**Natural Images**
+Natural images refer to photographs or visual representations of real-world scenes or objects taken under natural lighting conditions. These images are not artificially manipulated or generated, but rather capture the visual information as it appears in the environment. Natural images are used in various applications, including photography, scientific imaging, computer vision, and machine learning. The complexity and diversity of natural scenes pose challenges for image analysis algorithms due to factors like lighting variations, occlusions, textures, and object shapes.
+
+In the context of digital image forensics or PRNU analysis, flatfield and natural images can play a role in understanding the characteristics of images and their underlying noise patterns. PRNU, or Photo Response Non-Uniformity, refers to the unique noise pattern introduced by the imaging sensor of a camera. Analyzing PRNU involves differentiating between variations caused by the camera sensor and the natural variations present in a scene, and this analysis can benefit from understanding both flatfield and natural images.
+
+$$
+\text{PSNR} = 10 \cdot \log_{10} \left( \frac{\text{Peak Signal Power}}{\text{MSE}} \right)
+$$
+
+
+In this equation, a higher PSNR value indicates better image quality, as it signifies a lower amount of distortion or noise present in the reconstructed image compared to the reference image. Conversely, a lower PSNR value suggests higher distortion levels and reduced fidelity.
+
+During the course of my research, I have utilized PSNR as an objective measure to evaluate the performance of various image compression techniques, algorithms, or models that I have implemented. By calculating and analyzing the PSNR values, I am able to assess the effectiveness of different approaches in maintaining image quality while achieving compression or processing goals.
+
+In summary, Peak Signal-to-Noise Ratio (PSNR) is a vital metric in that allows to quantitatively evaluate the quality of reconstructed or processed images. By understanding and applying PSNR calculations, I can make informed decisions about the performance of my implemented methods and their impact on image fidelity.
+
 \pagebreak
 
 # 2. Literature Review and Related Work

@@ -550,10 +550,6 @@ class PRNUProcessor(ImageProcessor):
         ff_dirlist = np.array(sorted(glob(ff_dir)))
         ff_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in ff_dirlist])
 
-        # from pprint import pprint
-        # pprint(ff_dirlist)
-        # quit()
-
         nat_dirlist = np.array(sorted(glob(nat_dir)))
         nat_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in nat_dirlist])
 
@@ -612,4 +608,4 @@ class PRNUProcessor(ImageProcessor):
         print('AUC on CC {:.2f}, expected {:.2f}'.format(stats_cc['auc'], 0.98))
         print('AUC on PCE {:.2f}, expected {:.2f}'.format(stats_pce['auc'], 0.81))
 
-        return stats_cc, stats_pce
+        return stats_cc, stats_pce, k
