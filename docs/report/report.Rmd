@@ -50,11 +50,38 @@ Digital image forensics plays a pivotal role in detecting image manipulations an
 
 ### 1.1.1 PRNU
 
+*Pixel output*
+
+Considering the impact of manufacturing defects coming from the wafer silicon a sensor is made of, the raw output of a sensor can be expressed as:
+$$
+Y = I + IK + \tau D + c + \theta
+$$
+Where $\tau$ is a scalar multiplicative factor whose value is determined by exposure, temperature, and ISO Settings. The matrix c is the matrix of offsets and the dark current factor D is a noise-like signal due to leakage of electrons into pixels' electron wells. $K$ is the PRNU factor. The modeling noise $\theta$ is a collection of all other noise sources, which are mostly random in nature and therefore difficult to use for forensic purposes (readout noise, shot noise, also known as photonic noise, quantization noise, etc.). For spike pixel defects, such as hot or stuck pixels, at least one of the three parameters, $K, D$ and $c$ , becomes large. Even though the parameters could be accurately estimated by taking special test pictures, such as pictures of dark scenes with long exposure, in forensic setting the camera may not be available and the challenge becomes to estimate these three matrices from the limited set of images available to the analyst. We also need to design an estimator for the onset of a defect and an estimator for the acquisition time of an unknown image by detecting it in the presence of defects.
+
 Photo Response Non-Uniformity (PRNU) is a fundamental characteristic inherent to individual image sensors, arising from imperfections and variations during the manufacturing process. It manifests as a unique noise pattern that is present in the output of each sensor pixel when exposed to the same uniform illumination. PRNU is mainly attributed to variations in pixel sensitivity, dark current, and other sensor-specific factors. This noise pattern can be considered akin to a "fingerprint" for the camera sensor and is often treated as a quasi-unique identifier for digital images. PRNU has found significant applications in the field of digital image forensics, where it is employed for source camera identification and authenticity verification. By analyzing the PRNU noise pattern extracted from a given image, experts can determine the camera that captured the image, facilitating the identification of image origins, tampering detection, and even establishing the credibility of digital evidence in legal cases. The ability of PRNU to reveal subtle sensor-specific noise characteristics has revolutionized the field of multimedia forensics, playing a pivotal role in ensuring the integrity and traceability of digital imagery.
 
 
 $$
 \text{PRNU}(\mathbf{I}) = \frac{\mathbf{I} - \mathbf{K} \odot \mathbf{I}}{\mathbf{K} \odot \mathbf{I}}
+$$
+The normalized correlation:
+$$
+\text{corr}(\mathbf{X,Y}) = \frac     {\mathbf{(X-\bar{X})}  \odot \mathbf{(Y-\bar{Y})}}      {\mathbf{||X-\bar{X}||} \odot \mathbf{||Y-\bar{Y}||} }
+$$
+FOr an image I obtained by a digitarl camera, its noise residual is defined as $W_{\text{I}} = I - F(I)$, where $F$ is a denoising filter. THe major component of the sensor fingerprint is due to photo-response non-uniformity (PRNU), Which can be captured using a multiplicative factor $K$ (the sensor _fingerprint_). Using the model, the noise residual can be written as:
+$$
+W_{\text{I}} = aIK + \theta
+$$
+Where $\theta$ stands for all other random noise components, such as the shot noise or the redout noise, and $a$ is an attenuation factor of the same dimension as $K$ that, in general, depends on the image content. 
+
+The maximum likelihood estimator of the PRNU factor $K$ from images $I^{I}, ... , I^{N}$ has the form:
+$$
+\hat{K} = \frac{\sum_{\text{i=1}}^{\text{N}}W_{\text{I}}^{\text{(i)}}I^{\text{(i)}}}{\sum(I^{\text{(i)}})^{\text{2}}}
+$$
+
+Under the assumption that no geometric transform was applied to image $J$ (cropping, scaling, and digital zooming), the presence of the camera fingerprint represented by an estimate $\hat{K}$ is established through the correlation detector:
+$$
+\rho = corr({W_{\text{J}}}, J\hat{K})
 $$
 
 ### 1.1.2 PSNR
