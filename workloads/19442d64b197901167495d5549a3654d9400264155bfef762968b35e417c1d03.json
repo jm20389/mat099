@@ -1,0 +1,20 @@
+{
+  "id": "1701561445.2467937",
+  "experiment": 5,
+  "sequence": "a",
+  "timestamp_created": "2023-12-03T00:57:25.246798",
+  "timestamp_completed": "2023-12-03T10:26:25.798066",
+  "state": "complete",
+  "manipulation": {
+    "operation": "gingham",
+    "parameter": 0.8999999999999999
+  },
+  "deviceList": [
+    "D01",
+    "D02",
+    "D03"
+  ],
+  "error_message": "type object 'Color3DLUT' has no attribute 'create_gingham_lut'",
+  "timestamp_error": "2023-12-03T00:57:56.296606",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/joseca/mat099/classes/WorkloadManager.py\", line 183, in runWorkloadSingle\n    result = PRNUHandler.runWorkload(wl)\n  File \"/home/joseca/mat099/classes/PRNUManager.py\", line 30, in runWorkload\n    stats_cc, stats_pce, k = PRNUManager.testPRNU(image_manipulation = wl['manipulation'], deviceList = wl['deviceList'])\n  File \"/home/joseca/mat099/classes/PRNUManager.py\", line 64, in testPRNU\n    w = PRNUProcessor.compute_residuals(nat_dirlist, crop, image_manipulation)\n  File \"/home/joseca/mat099/classes/PRNUProcessor.py\", line 716, in compute_residuals\n    img = PRNUProcessor.manipulateImage(img, image_manipulation)\n  File \"/home/joseca/mat099/classes/ImageProcessor.py\", line 75, in manipulateImage\n    im = ImageProcessor.apply_gingham(im, parameter)\n  File \"/home/joseca/mat099/classes/ImageProcessor.py\", line 102, in apply_gingham\n    im = im.filter(ImageFilter.Color3DLUT.create_gingham_lut(intensity))\nAttributeError: type object 'Color3DLUT' has no attribute 'create_gingham_lut'\n"
+}

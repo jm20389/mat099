@@ -1,0 +1,20 @@
+{
+  "id": "1701210615.561919",
+  "experiment": 3,
+  "sequence": "a",
+  "timestamp_created": "2023-11-28T23:30:15.561924",
+  "timestamp_completed": null,
+  "state": "error",
+  "manipulation": {
+    "operation": "brightness",
+    "parameter": -0.20000000000000018
+  },
+  "deviceList": [
+    "D01",
+    "D02",
+    "D03"
+  ],
+  "error_message": "'NoneType' object is not subscriptable",
+  "timestamp_error": "2023-12-03T12:17:11.123552",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/joseca/mat099/classes/WorkloadManager.py\", line 183, in runWorkloadSingle\n    result = PRNUHandler.runWorkload(wl)\n  File \"/home/joseca/mat099/classes/PRNUManager.py\", line 30, in runWorkload\n    stats_cc, stats_pce, k = PRNUManager.testPRNU(image_manipulation = wl['manipulation'], deviceList = wl['deviceList'])\n  File \"/home/joseca/mat099/classes/PRNUManager.py\", line 81, in testPRNU\n    pce_rot[fingerprint_idx, natural_idx] = PRNUProcessor.pce(cc2d)['pce']\nTypeError: 'NoneType' object is not subscriptable\n"
+}

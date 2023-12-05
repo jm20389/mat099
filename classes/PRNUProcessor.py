@@ -1,20 +1,27 @@
 # PRNU
 import numpy as np
 import pywt
-from numpy.fft import fft2, ifft2
-from scipy.ndimage import filters
-from multiprocessing import Pool, cpu_count
-from sklearn.metrics import roc_curve, auc
-from tqdm import tqdm
-from classes.ImageProcessor import ImageProcessor
+
+from numpy.fft             import fft2, ifft2
+from scipy.ndimage         import filters
+from multiprocessing       import Pool, cpu_count
+from tqdm                  import tqdm
+from skimage.restoration   import denoise_tv_chambolle
+from sklearn.metrics       import roc_curve, auc
+from sklearn.decomposition import PCA
+
+from classes.ImageProcessor   import ImageProcessor
+from classes.PickleHandler    import PickleHandler
+from classes.DatasetProcessor import DatasetProcessor
 
 # Test methods
-import os
+import cv2, requests, re, os
 from glob import glob
-from PIL import Image
+from PIL  import Image
+from io   import BytesIO
 
 
-class PRNUProcessor(ImageProcessor):
+class PRNUProcessor(ImageProcessor, PickleHandler, DatasetProcessor):
     """
     Extraction functions
     """
@@ -39,8 +46,47 @@ class PRNUProcessor(ImageProcessor):
         W = PRNUProcessor.wiener_dft(W, W_std).astype(np.float32)
 
         return W
+
     @staticmethod
-    def noise_extract(im: np.ndarray, levels: int = 4, sigma: float = 5) -> np.ndarray:
+    def noise_extract(im: np.ndarray, sigma: float = 5, levels: int = 4, method: str = 'Wiener filter') -> np.ndarray:
+        if method == 'Wiener filter':
+            return PRNUProcessor.noise_extract_wiener(im = im, levels = levels, sigma = sigma)
+        elif method == 'Gaussian blur':
+            return PRNUProcessor.noise_extract_gaussian(im = im, sigma = sigma)
+        elif method == 'Total variation':
+            return PRNUProcessor.noise_extract_tv(im = im)
+        elif method == 'Non-local means':
+            return PRNUProcessor.noise_extract_nlm(im = im)
+        elif method == 'PCA':
+            return PRNUProcessor.noise_extract_pca(im = im)
+        else:
+            print('Method error: Unknown noise extract method')
+            return np.ndarray()
+
+    @staticmethod
+    def noise_extract_gaussian(im: np.ndarray, sigma: float = 5) -> np.ndarray:
+        """
+        Noise extraction using Gaussian blur.
+
+        :param im: grayscale or color image, np.uint8
+        :param sigma: standard deviation of the Gaussian blur
+        :return: noise residual
+        """
+
+        assert (im.dtype == np.uint8)
+        assert (im.ndim in [2, 3])
+
+        im = im.astype(np.float32)
+
+        # Apply Gaussian blur to the image
+        blurred = cv2.GaussianBlur(im, (0, 0), sigma)
+
+        # Calculate the noise residual by subtracting the blurred image from the original
+        noise_residual = im - blurred
+
+        return noise_residual
+    @staticmethod
+    def noise_extract_wiener(im: np.ndarray, levels: int = 4, sigma: float = 5) -> np.ndarray:
         """
         NoiseExtract as from Binghamton toolbox.
 
@@ -106,6 +152,91 @@ class PRNUProcessor(ImageProcessor):
 
         return W
     @staticmethod
+    def noise_extract_tv(im: np.ndarray, weight: float = 0.1) -> np.ndarray:
+        """
+        Noise extraction using Total Variation (TV) denoising.
+
+        :param im: grayscale or color image, np.uint8
+        :param weight: regularization weight (adjustable)
+        :return: noise residual
+        """
+
+        assert (im.dtype == np.uint8)
+        assert (im.ndim in [2, 3])
+
+        im = im.astype(np.float32)
+
+        # Apply Total Variation (TV) denoising to the image
+        denoised = denoise_tv_chambolle(im, weight=weight)
+
+        # Calculate the noise residual by subtracting the denoised image from the original
+        noise_residual = im - denoised
+
+        return noise_residual
+    @staticmethod
+    def noise_extract_nlm(im: np.ndarray, h: float = 10.0, template_window: int = 7, search_window: int = 21) -> np.ndarray:
+        """
+        Noise extraction using Non-Local Means (NLM) denoising.
+
+        :param im: grayscale or color image, np.uint8
+        :param h: filtering strength parameter
+        :param template_window: size of the template window
+        :param search_window: size of the search window
+        :return: noise residual
+        """
+
+        assert (im.dtype == np.uint8)
+        assert (im.ndim in [2, 3])
+
+        im = im.astype(np.float32)
+
+        # Apply Non-Local Means (NLM) denoising to the image
+        denoised = cv2.fastNlMeansDenoisingColored(im, None, h=h, templateWindowSize=template_window, searchWindowSize=search_window)
+
+        # Calculate the noise residual by subtracting the denoised image from the original
+        noise_residual = im - denoised
+
+        return noise_residual
+    @staticmethod
+    def noise_extract_pca(im: np.ndarray, n_components: int = 3) -> np.ndarray:
+        """
+        Noise extraction using Principal Component Analysis (PCA) denoising.
+
+        :param im: grayscale or color image, np.uint8
+        :param n_components: number of principal components to retain
+        :return: noise residual
+        """
+
+        assert (im.dtype == np.uint8)
+        assert (im.ndim in [2, 3])
+
+        if im.ndim == 3:
+            # Flatten the image for PCA
+            im_flat = im.reshape(-1, 3)
+        else:
+            # If the image is grayscale, reshape to (height, width, 1)
+            im_flat = im.reshape(im.shape[0], im.shape[1], 1)
+
+        # Apply PCA to the flattened image
+        pca = PCA(n_components=n_components)
+        im_pca = pca.fit_transform(im_flat)
+
+        # Reconstruct the image from the selected principal components
+        im_denoised = pca.inverse_transform(im_pca)
+
+        if im.ndim == 3:
+            # Reshape the denoised image back to (height, width, 3) for color images
+            im_denoised = im_denoised.reshape(im.shape)
+        else:
+            # Reshape for grayscale images
+            im_denoised = im_denoised.reshape(im.shape)
+
+        # Calculate the noise residual by subtracting the denoised image from the original
+        noise_residual = im - im_denoised
+
+        return noise_residual
+
+    @staticmethod
     def noise_extract_compact(args):
         """
         Extract residual, multiplied by the image. Useful to save memory in multiprocessing operations
@@ -128,6 +259,7 @@ class PRNUProcessor(ImageProcessor):
         :param sigma: estimated noise power
         :return: PRNU
         """
+
         assert (isinstance(imgs[0], np.ndarray))
         assert (imgs[0].ndim == 3)
         assert (imgs[0].dtype == np.uint8)
@@ -297,7 +429,7 @@ class PRNUProcessor(ImageProcessor):
         res = wlet_coeff_energy_avg - noise_var
         return (res + np.abs(res)) / 2
     @staticmethod
-    def wiener_adaptive(x: np.ndarray, noise_var: float, **kwargs) -> np.ndarray:
+    def wiener_adaptive(im: np.ndarray, noise_var: float, **kwargs) -> np.ndarray:
         """
         WaveNoise as from Binghamton toolbox.
         Wiener adaptive flter aimed at extracting the noise component
@@ -309,21 +441,28 @@ class PRNUProcessor(ImageProcessor):
         :return: wiener filtered version of input x
         """
         window_size_list = list(kwargs.pop('window_size_list', [3, 5, 7, 9]))
+        energy = im ** 2
 
-        energy = x ** 2
-
-        avg_win_energy = np.zeros(x.shape + (len(window_size_list),))
+        avg_win_energy = np.zeros(im.shape + (len(window_size_list),))
         for window_idx, window_size in enumerate(window_size_list):
-            avg_win_energy[:, :, window_idx] = filters.uniform_filter(energy,
-                                                                    window_size,
-                                                                    mode='constant')
+            avg_win_energy[:, :, window_idx] = filters.uniform_filter(energy, window_size, mode='constant')
 
         coef_var = PRNUProcessor.threshold(avg_win_energy, noise_var)
         coef_var_min = np.min(coef_var, axis=2)
 
-        x = x * noise_var / (coef_var_min + noise_var)
+        # print(f'noise var: {noise_var}')
+        # print(f'coef var min: {coef_var_min}')
+        # print(f'coef var min + noise_var: {(coef_var_min + noise_var)}')
+        # quit()
 
-        return x
+        # if coef_var_min + noise_var == 0:
+        #     print(f'coef var min: {coef_var_min}')
+        #     print(f'noise_var: {noise_var}')
+        #     raise ValueError('Wiener adaptive wavenoise error: Divide by zero.')
+
+        im = im * noise_var / (coef_var_min + noise_var)
+
+        return im
     @staticmethod
     def inten_scale(im: np.ndarray) -> np.ndarray:
         """
@@ -333,12 +472,10 @@ class PRNUProcessor(ImageProcessor):
         """
 
         assert (im.dtype == np.uint8)
-
         T = 252
         v = 6
         out = np.exp(-1 * (im - T) ** 2 / v)
         out[im < T] = im[im < T] / T
-
         return out
     @staticmethod
     def saturation(im: np.ndarray) -> np.ndarray:
@@ -473,6 +610,12 @@ class PRNUProcessor(ImageProcessor):
 
         pce_energy = np.mean(cc_nopeaks.flatten() ** 2)
 
+        if pce_energy * np.sign(peak_height) == 0:
+            print('PCE error: zero correlation values')
+            print(pce_energy)
+            print(peak_height)
+            return None
+
         out['peak'] = (max_y, max_x)
         out['pce'] = (peak_height ** 2) / pce_energy * np.sign(peak_height)
         out['cc'] = peak_height
@@ -520,6 +663,7 @@ class PRNUProcessor(ImageProcessor):
         :param l2: residuals labels
         :return: groundtruth matrix
         """
+
         l1 = np.array(l1)
         l2 = np.array(l2)
 
@@ -532,34 +676,23 @@ class PRNUProcessor(ImageProcessor):
             gt_arr[l1idx, l2 == l1sample] = True
 
         return gt_arr
-
-
-    """
-    Test sequences
-    """
-
-    def testPRNU(ff_dir =  'data/ff-jpg/*.JPG',
-                 nat_dir = 'data/nat-jpg/*.JPG'):
-        """
-        Main example script. Load a subset of flatfield and natural images from Dresden.
-        For each device compute the fingerprint from all the flatfield images.
-        For each natural image compute the noise residual.
-        Check the detection performance obtained with cross-correlation and PCE
-        :return:
-        """
-        ff_dirlist = np.array(sorted(glob(ff_dir)))
-        ff_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in ff_dirlist])
-
-        nat_dirlist = np.array(sorted(glob(nat_dir)))
-        nat_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in nat_dirlist])
-
+    @staticmethod
+    def compute_fingerprints(ff_dirlist, ff_device, crop):
         print('Computing fingerprints')
-        fingerprint_device = sorted(np.unique(ff_device))
+        fingerprint_devices = sorted(np.unique(ff_device))
+
         k = []
-        for device in fingerprint_device:
+        for device in fingerprint_devices:
+
+            if device in os.listdir('fingerprints'):
+                print('Device '+device+' already registered. Loading fingerprint...')
+                fingerprint = PickleHandler.load('fingerprints/' + device)
+                k += [fingerprint]
+                continue
+
             imgs = []
             for img_path in ff_dirlist[ff_device == device]:
-                im = Image.open(img_path)
+                im = Image.open(img_path).convert('RGB')
                 im_arr = np.asarray(im)
                 if im_arr.dtype != np.uint8:
                     print('Error while reading image: {}'.format(img_path))
@@ -567,45 +700,25 @@ class PRNUProcessor(ImageProcessor):
                 if im_arr.ndim != 3:
                     print('Image is not RGB: {}'.format(img_path))
                     continue
-                im_cut = PRNUProcessor.cut_ctr(im_arr, (512, 512, 3))
+                im_cut = PRNUProcessor.cut_ctr(im_arr, crop)
                 imgs += [im_cut]
+
             k += [PRNUProcessor.extract_multiple_aligned(imgs, processes=cpu_count())]
+            # Register new fingerprint
+            PickleHandler.save(PRNUProcessor.extract_multiple_aligned(imgs, processes=cpu_count()), 'fingerprints/'+device)
 
-        k = np.stack(k, 0)
-
+        return np.stack(k, 0)
+    @staticmethod
+    def compute_residuals(nat_dirlist, crop, image_manipulation):
         print('Computing residuals')
-
         imgs = []
         for img_path in nat_dirlist:
-            imgs += [PRNUProcessor.cut_ctr(np.asarray(Image.open(img_path)), (512, 512, 3))]
+            img = Image.open(img_path).convert('RGB')
+            img = PRNUProcessor.manipulateImage(img, image_manipulation)
+            imgs += [PRNUProcessor.cut_ctr(np.asarray(img), crop)]
 
         pool = Pool(cpu_count())
         w = pool.map(PRNUProcessor.extract_single, imgs)
         pool.close()
 
-        w = np.stack(w, 0)
-
-        # Computing Ground Truth
-        gt = PRNUProcessor.gt(fingerprint_device, nat_device)
-
-        print('Computing cross correlation')
-        cc_aligned_rot = PRNUProcessor.aligned_cc(k, w)['cc']
-
-        print('Computing statistics cross correlation')
-        stats_cc = PRNUProcessor.stats(cc_aligned_rot, gt)
-
-        print('Computing PCE')
-        pce_rot = np.zeros((len(fingerprint_device), len(nat_device)))
-
-        for fingerprint_idx, fingerprint_k in enumerate(k):
-            for natural_idx, natural_w in enumerate(w):
-                cc2d = PRNUProcessor.crosscorr_2d(fingerprint_k, natural_w)
-                pce_rot[fingerprint_idx, natural_idx] = PRNUProcessor.pce(cc2d)['pce']
-
-        print('Computing statistics on PCE')
-        stats_pce = PRNUProcessor.stats(pce_rot, gt)
-
-        print('AUC on CC {:.2f}, expected {:.2f}'.format(stats_cc['auc'], 0.98))
-        print('AUC on PCE {:.2f}, expected {:.2f}'.format(stats_pce['auc'], 0.81))
-
-        return stats_cc, stats_pce, k
+        return np.stack(w, 0)

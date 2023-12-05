@@ -1,0 +1,20 @@
+{
+  "id": "1701561445.2467937",
+  "experiment": 5,
+  "sequence": "a",
+  "timestamp_created": "2023-12-03T00:57:25.246798",
+  "timestamp_completed": "2023-12-03T01:25:28.222134",
+  "state": "complete",
+  "manipulation": {
+    "operation": "ludwig",
+    "parameter": 1.8999999999999997
+  },
+  "deviceList": [
+    "D01",
+    "D02",
+    "D03"
+  ],
+  "error_message": null,
+  "timestamp_error": null,
+  "traceback": null
+}

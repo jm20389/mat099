@@ -10,8 +10,8 @@ import sys, os
 from skimage.io import imread
 
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow info and warning messages
+# os.environ['CUDA_VISIBLE_DEVICES'] = ''
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow info and warning messages
 
 class GanBuilder:
     """
@@ -24,6 +24,7 @@ class GanBuilder:
                  epochs =        30000,
                  sample_period = 200,
                  latent_dim =    100,
+                 sample_type =   'single'
                  ):
 
         X_train, X_test = X_train / 255.0 * 2 - 1, X_test / 255.0 * 2 - 1
@@ -32,6 +33,7 @@ class GanBuilder:
         self.epochs =        epochs
         self.sample_period = sample_period
         self.latent_dim =    latent_dim
+        self.sample_type =   sample_type
 
         self.Y_train =  Y_train
         self.Y_test =   Y_test
@@ -44,7 +46,6 @@ class GanBuilder:
 
         self.train_dir = train_dir if train_dir[-1] == '/' else train_dir + '/'
         os.makedirs(self.train_dir, exist_ok=True)
-
     def build_generator(self):
         i = Input(shape=(self.latent_dim,))
         x = Dense(256, activation=LeakyReLU(alpha=0.2))(i)
@@ -57,7 +58,6 @@ class GanBuilder:
         model = Model(i, x)
         self.generator = model
         return model
-
     def build_discriminator(self):
         i = Input(shape=(self.D))
         x = Dense(512, activation=LeakyReLU(alpha=0.2))(i)
@@ -66,7 +66,6 @@ class GanBuilder:
         model = Model(i, x)
         self.discriminator = model
         return model
-
     def compile(self):
         self.discriminator.compile(
             loss='binary_crossentropy',
@@ -82,7 +81,6 @@ class GanBuilder:
         self.combined_model.compile(loss='binary_crossentropy', optimizer=Adam(0.0002, 0.5))
         print('Compile completed')
         return None
-
     def train(self):
         ones =  np.ones(self.batch_size)
         zeros = np.zeros(self.batch_size)
@@ -125,13 +123,17 @@ class GanBuilder:
                 d_acc: {d_acc:.2f}, g_loss: {g_loss:.2f}")
 
             if epoch % self.sample_period == 0:
-                self.sample_images(epoch)
+                if self.sample_type == 'multiple':
+                    print('Generate image grid...')
+                    self.sample_images(epoch)
+                elif self.sample_type == 'single':
+                    print('Generate simple image..')
+                    self.sample_single_image(epoch)
 
         self.d_losses = d_losses
         self.g_losses = g_losses
         print('Train completed')
         return None
-
     def sample_images(self, epoch):
         rows, cols = 5, 5
         noise = np.random.randn(rows * cols, self.latent_dim)
@@ -148,7 +150,25 @@ class GanBuilder:
                 axs[i,j].axis('off')
                 idx += 1
         fig.savefig(self.train_dir+"%d.png" % epoch)
+        print('Saved: ' + self.train_dir+"%d.png")
         plt.close()
 
         return None
+    def sample_single_image(self, epoch):
+        noise = np.random.randn(1, self.latent_dim)
+        img = self.generator.predict(noise)[0]
+
+        # Rescale image from [-1, 1] to [0, 1]
+        img = 0.5 * img + 0.5
+
+        plt.imshow(img.reshape(self.H, self.W), cmap='gray')
+        plt.axis('off')
+
+        # Save the single image as a JPEG file
+        output_path = os.path.join(self.train_dir, f"generated_image_epoch_{epoch}.jpg")
+        plt.savefig(output_path)
+        print(f"Saved: {output_path}")
+        plt.close()
+
+        return img
 

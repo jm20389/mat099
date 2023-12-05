@@ -1,0 +1,20 @@
+{
+  "id": "1701724149.3336549",
+  "experiment": 7,
+  "sequence": "a",
+  "timestamp_created": "2023-12-04T22:09:09.333657",
+  "timestamp_completed": "2023-12-04T23:18:07.228578",
+  "state": "complete",
+  "manipulation": {
+    "operation": null,
+    "parameter": null
+  },
+  "deviceList": [
+    "D54",
+    "D55",
+    "D56"
+  ],
+  "error_message": null,
+  "timestamp_error": null,
+  "traceback": null
+}

@@ -1,15 +1,13 @@
-import pickle
-import io
-import inspect
-import json
+import os, pickle, io, inspect, json
 from ftplib import FTP
 
 class PickleHandler:
     pickleDir =   './data-pickle/'
-    config_file = 'classes/server.json'
+    config_file = './server.json'
 
     def __init__(self, pickleDir = None):
-        self.pickleDir = './data-pickle' if pickleDir is not None else pickleDir
+        self.pickleDir = pickleDir if pickleDir is not None else './data-pickle'
+        os.makedirs(os.path.dirname(self.pickleDir), exist_ok=True)
 
     @staticmethod
     def load_config():
@@ -18,7 +16,13 @@ class PickleHandler:
 
     @staticmethod
     def save(obj, filename):
-        filepath = PickleHandler.pickleDir + '/' + filename
+        if '/' not in filename:
+            filepath = PickleHandler.pickleDir + '/' + filename
+        else:
+            filepath = filename
+
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
         with open(filepath, "wb+") as file:
             pickle.dump(obj, file)
         return None
@@ -26,7 +30,11 @@ class PickleHandler:
 
     @staticmethod
     def load(filename):
-        with open(PickleHandler.pickleDir + '/' + filename, 'rb') as file:
+        if '/' not in filename:
+            filepath = PickleHandler.pickleDir + '/' + filename
+        else:
+            filepath = filename
+        with open(filepath, 'rb') as file:
             object_reloaded = pickle.load(file)
             return object_reloaded
     # Load numpy's binary object using np.load: np.load(filepath, allow_pickle = True).item()
