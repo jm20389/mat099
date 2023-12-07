@@ -1,0 +1,47 @@
+classes
+   |________ __init__.py
+   |________ EDAHelper.py
+   |________ WorkloadManager.py
+   |________ SQLiteManager.py
+   |________ PRNUProcessor.py
+   |________ PRNUManager.py
+   |________ DatasetProcessor.py
+   |________ Gan.py
+   |________ ModelBuilder.py
+   |________ PickleHandler.py
+   |________ ImageProcessor.py
+   |________ StyleTransferProcessor.py
+data-pickle
+   |________ dfTest02
+db
+   |________ results.db
+   |________ history.db
+diagrams
+   |________ packages_PRNU_Processor_methods.png
+   |________ lucid_diagram01_old.png
+   |________ lucid_diagram01.png
+   |________ output_tree.txt
+   |________ packages_PRNU_Processor.png
+   |________ classes_PRNU_Processor_methods.png
+   |________ classes_PRNU_Processor.png
+fingerprints
+   |________ D05_I
+   |________ D47_I
+   |________ D46_I
+   |________ [ ... ]
+notebooks
+   |________ EDA_vision.ipynb
+workers
+   |________ workloadRunner.py
+   |________ UML_generator.py
+   |________ worker_rename_files.py
+   |________ workloadGenerator.py
+   |________ download_vision.py
+   |________ tree.py
+workloads
+   |________ 6bca77ad09193b476c86d9a489371aaccbaf4392e15b01b7350f0680f437a224.json
+   |________ 617105c9ac8dd91777a9914a016806ab680935754779c73dfe67e3edce7516a3.json
+   |________ fd7f4f1daad219eed8c3c63d443ef249201160e85167af48bd5d8412f60229ef.json
+   |________ [ ... ]
+README.md
+main.py

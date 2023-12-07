@@ -1,6 +1,6 @@
 # PRNU
 import numpy as np
-import pywt
+import pywt, configparser
 
 from numpy.fft             import fft2, ifft2
 from scipy.ndimage         import filters
@@ -25,7 +25,6 @@ class PRNUManager(PRNUProcessor):
     @staticmethod
     def runWorkload(wl):
         sequence = wl['sequence']
-
         if sequence.lower() == 'a':
             stats_cc, stats_pce, k = PRNUManager.testPRNU(image_manipulation = wl['manipulation'], deviceList = wl['deviceList'])
 
@@ -35,14 +34,13 @@ class PRNUManager(PRNUProcessor):
     Test sequences
     """
     @staticmethod
-    def testPRNU(#ff_dir =  'data/ff-jpg/*.JPG'
-                 #,nat_dir = 'data/nat-jpg/*.JPG'
-                 ff_dir  = "/mnt/669118d5-25c6-4d9a-9660-2787d5d59e99/vision_dataset/ff/*.jpg"
-                 ,nat_dir = "/mnt/669118d5-25c6-4d9a-9660-2787d5d59e99/vision_dataset/nat/*.jpg"
+    def testPRNU(
+                 ff_dir              = None
+                 ,nat_dir            = None
                  ,image_manipulation = None
-                 ,crop = (512, 512, 3)
-                 ,vision_dataset = False
-                 ,deviceList = None
+                 ,crop               = (512, 512, 3)
+                 ,vision_dataset     = False
+                 ,deviceList         = None
                  ):
         """
         Main example script. Load a subset of flatfield and natural images from Dresden.
@@ -51,6 +49,14 @@ class PRNUManager(PRNUProcessor):
         Check the detection performance obtained with cross-correlation and PCE
         :return:
         """
+
+        if ff_dir is None or nat_dir is None:
+            config_file_path = os.path.join(os.path.dirname(__file__), '/config.ini')
+            config = configparser.ConfigParser()
+            config.read(config_file_path)
+
+            ff_dir = config['vision_dataset']['ff_dir']
+            nat_dir = config['vision_dataset']['nat_dir']
 
         if vision_dataset:
             print('Loading remote Vision Dataset..')

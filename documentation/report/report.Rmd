@@ -1,5 +1,5 @@
 ---
-title: "Detection of fake images and camera attribution using PRNU"
+title: "Evaluating Robustness of PRNU Signatures under Image Manipulations for Device Identification"
 author: "Jose C. Mendoza-Jimenez"
 date: "`r format(Sys.time(), '%d %B %Y', locale = 'en_US.UTF-8')`"
 #date: "`r format(Sys.time(), '%d %B %Y')`"
@@ -21,12 +21,12 @@ output:
 biblio-style: apalike
 email: mendoza-jimenezjc@cardiff.ac.uk
 fontfamily: times
-fontsize: 11pt
+fontsize: 10pt
 geometry: margin=1.1in
 link-citations: yes
 bibliography: refs.bib
 subtitle: 'Master Thesis Dissertation'
-abstract: This scientific article investigates the robustness of Photo-Response Non-Uniformity (PRNU) signatures in the context of camera attribution, specifically addressing challenges posed by prevalent image manipulations in social media. Focused on the realm of computer vision and image forensics, our study delves into the impact of various manipulations encountered in social media environments, including image enhancing techniques, color filters, brightness and contrast adjustments, and the utilization of generative AI, such as Style Transfer. The analysis employs Python-based tools and TensorFlow to assess the efficacy of PRNU signatures in maintaining their integrity amidst these manipulations. Our experiments reveal nuanced insights into the signature's resilience or vulnerability under different types and intensities of image alterations. This exploration is critical for advancing camera attribution techniques in the dynamic landscape of social media, where images undergo diverse transformations. The findings of this study contribute to the development of more robust and reliable camera attribution models, ensuring the continued applicability of PRNU signatures in the ever-evolving domain of image forensics within the digital ecosystem.
+abstract: This scientific article investigates the robustness of Photo-Response Non-Uniformity (PRNU) signatures in the context of camera attribution, specifically addressing challenges posed by prevalent image manipulations in social media. Focused on the realm of computer vision and image forensics, our study delves into the impact of various manipulations encountered in social media environments, including image enhancing techniques, color filters, brightness and contrast adjustments, and the utilization of generative AI, such as Style Transfer. The analysis employs Python-based tools and TensorFlow to assess the efficacy of PRNU signatures in maintaining their integrity amidst these manipulations.
 ---
 
 <!-- set knitr options here -->
@@ -143,17 +143,98 @@ By establishing a well-balanced representation in our dataset, we not only enhan
 ![Distribution of pixel intensity by camera device (\#fig:bb1)](images/pixel_intensity_distribution.png){width=75% style="margin-bottom: -20px;"}
 
 \pagebreak
-
 # 4. Methodology
 
-## 4.1 The workloads system database & manager
+## 4.1 The workloads system: Database & manager
 
 Recognizing the challenges of extended computational tasks and the need for a robust and efficient system, a dedicated workload management framework was created to orchestrate and streamline the experimental process. One cannot afford setting off a large sequence of tests to run overnight, to be collected the morning after, to find that the sequence had failed soon after being started. In order to efficiently handle and iterate through issues arising during the experiments, a workload system was created, so the work can be handled, distributed and iterated in an efficient manner. The workload database is just a simple collection of json data, where each file serves as a directive, containing instructions for individual experiments. The workload manager takes charge, parsing these files, orchestrating the execution of experiments, and recording outcomes in concise summaries. Successful experiments are stored in a SQLite local database, whilst others resulting in error are properly labeled and set aside, so they can be studied and resolved later. This procedure avoids interruptions and optimize the limited computational time we can afford.
+
+![PRNU processor iterator (\#fig:bb1)](../../diagrams/lucid_diagram01.png){width=100%}
+\pagebreak
+
+## 4.2 Package breakdown
+
+### Directories
+
+| **Folder**  |                                               **Description**                           | 
+|:-----------:|:---------------------------------------------------------------------------------------:|
+|workloads    | Workload database (json data with instructions to execute the required sequence)        |
+|db           | SQLite databases to collect experiment results and a history events                     | 
+|classes      | Modules                                                                                 |
+|fingerprints | Registry of camera fingerprints already extracted with a fixed crop area                |
+|data-pickle  | Binary data stored as a checkpoint for data analysis                                    |
+|workers      | One-off tasks (dataset download, renaming, file sorting, diagram production, etc.)      |
+|output       | Pictures produced by GAN and Style Transfer techniques                                  |
+
+### Modules (classes package)
+
+| **Module**     |                                               **Description**                              |
+|:--------------:|:------------------------------------------------------------------------------------------:|
+|PRNUProcessor   | Noise straction, wavelet transforms and statistical functions for PRNU analysis            |
+|PRNUManager     | Receives workload data/instructions and executes a determined analysis sequence            |
+|ImageProcessor  | Applies image transformation (preprocessing) to the pictures fed into the PRNU processor   |
+|StyleTransferP. | Applies Style Transfer transformations to a given image                                    |
+|PickleHandler   | Tools to save and load Pickle objects, both locally and connected to an external server    |
+|EDAHelper       | Tools to perform exploratory data analysis (EDA) in an image dataset                       |
+
+
+![The classes package (\#fig:bb2)](../../diagrams/packages_PRNU_Processor.png){width=80%}
+\pagebreak
+
+```{r echo=FALSE, warning=FALSE, results='asis'}
+file_path <- '../../diagrams/output_tree.txt'
+tree_contents <- readLines(file_path)
+cat("```", "\n")
+cat(tree_contents, sep = '\n')
+cat("```", "\n")
+```
 
 \pagebreak
 
 # 5. Experimental Setting
-To evaluate the effectiveness of our PRNU-based approach, we conducted comprehensive experiments using the benchmark dataset. Training parameters, data augmentation techniques, and evaluation metrics are defined in this section. We outline the training strategies and discuss how our method performs across various manipulation scenarios.
+
+## 5.1. Loading Vision Dataset:
+Method: testPRNU
+Purpose: Load a subset of flatfield and natural images from Dresden.
+Insights: This step involves loading image data, essential for subsequent PRNU computation.
+
+## 5.2. Computing Fingerprints and Noise Residuals:
+Methods: compute_fingerprints, compute_residuals
+Purpose: Compute fingerprints from flatfield images and noise residuals from natural images.
+Insights: This step generates key components for device identification: fingerprints (k) and noise residuals (w).
+
+## 5.3. Creating Ground Truth:
+Method: gt
+Purpose: Establish ground truth for device identification.
+Insights: Ground truth (gt) provides correct device labels for evaluation.
+
+## 5.4. Computing Cross-Correlation:
+Methods: aligned_cc, crosscorr_2d
+Purpose: Assess similarity between fingerprints and noise residuals.
+Insights: Cross-correlation values (cc_aligned_rot) reveal patterns and similarities.
+
+## 5.5. Computing Cross-Correlation Statistics:
+Method: stats
+Purpose: Evaluate system performance using metrics like AUC.
+Insights: AUC for cross-correlation (stats_cc['auc']) indicates discriminatory power.
+
+## 5.6. Computing PCE (Phase-Only Correlation):
+Methods: crosscorr_2d, pce
+Purpose: Alternative method for assessing correlation between fingerprints and residuals.
+Insights: PCE values (pce_rot) offer an alternative perspective on correlation strength.
+
+## 5.7. Computing PCE Statistics:
+Method: stats
+Purpose: Evaluate PCE performance using metrics like AUC.
+Insights: AUC for PCE (stats_pce['auc']) provides a complementary assessment.
+
+## 5.8. Final Metrics and Interpretation:
+Printed Results: AUC on CC, AUC on PCE
+Purpose: Provide a summary of the system's performance.
+Insights: Comparison of AUC values for cross-correlation and PCE, assessing consistency and overall effectiveness.
+
+## Summary:
+The testPRNU method is a comprehensive script for device identification using PRNU-based techniques. It loads image data, computes fingerprints and noise residuals, establishes ground truth, and evaluates system performance through cross-correlation and PCE. The printed AUC values offer a concise summary of the system's ability to distinguish between devices based on different correlation methods. The combination of cross-correlation and PCE, along with their respective statistics, provides a robust evaluation framework for the image forensics application.
 
 \pagebreak
 

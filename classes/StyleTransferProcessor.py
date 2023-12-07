@@ -1,22 +1,18 @@
-import os
-import tensorflow as tf
-# Load compressed models from tensorflow_hub
-os.environ['TFHUB_MODEL_LOAD_FORMAT'] = 'COMPRESSED'
+from classes.StyleContentModel   import StyleContentModel
+from PIL import Image
 
-import IPython.display as display
-
+import os, time, functools, sys, datetime
+import tensorflow        as tf
+import IPython.display   as display
+import numpy             as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
+import matplotlib        as mpl
+
 mpl.rcParams['figure.figsize'] = (12, 12)
 mpl.rcParams['axes.grid'] = False
 
-import numpy as np
-#import PIL.Image
-from PIL import Image
-import time
-import functools
-import sys
-import datetime
+# Load compressed models from tensorflow_hub
+os.environ['TFHUB_MODEL_LOAD_FORMAT'] = 'COMPRESSED'
 
 class StyleTransferProcessor:
 
@@ -261,60 +257,5 @@ class StyleTransferProcessor:
         print(f"Generated image saved as {filename}")
         return None
 
-class StyleContentModel(tf.keras.models.Model):
-  def __init__(self, style_layers, content_layers):
-    super(StyleContentModel, self).__init__()
-    self.vgg = StyleTransferProcessor.vgg_layers(style_layers + content_layers)
-    self.style_layers = style_layers
-    self.content_layers = content_layers
-    self.num_style_layers = len(style_layers)
-    self.vgg.trainable = False
 
-  def call(self, inputs):
-    "Expects float input in [0,1]"
-    inputs = inputs*255.0
-    preprocessed_input = tf.keras.applications.vgg19.preprocess_input(inputs)
-    outputs = self.vgg(preprocessed_input)
-    style_outputs, content_outputs = (outputs[:self.num_style_layers],
-                                      outputs[self.num_style_layers:])
 
-    style_outputs = [StyleTransferProcessor.gram_matrix(style_output)
-                     for style_output in style_outputs]
-
-    content_dict = {content_name: value
-                    for content_name, value
-                    in zip(self.content_layers, content_outputs)}
-
-    style_dict = {style_name: value
-                  for style_name, value
-                  in zip(self.style_layers, style_outputs)}
-
-    return {'content': content_dict, 'style': style_dict}
-  def __init__(self, style_layers, content_layers):
-    super(StyleContentModel, self).__init__()
-    self.vgg = StyleTransferProcessor.vgg_layers(style_layers + content_layers)
-    self.style_layers = style_layers
-    self.content_layers = content_layers
-    self.num_style_layers = len(style_layers)
-    self.vgg.trainable = False
-
-  def call(self, inputs):
-    "Expects float input in [0,1]"
-    inputs = inputs*255.0
-    preprocessed_input = tf.keras.applications.vgg19.preprocess_input(inputs)
-    outputs = self.vgg(preprocessed_input)
-    style_outputs, content_outputs = (outputs[:self.num_style_layers],
-                                      outputs[self.num_style_layers:])
-
-    style_outputs = [StyleTransferProcessor.gram_matrix(style_output)
-                     for style_output in style_outputs]
-
-    content_dict = {content_name: value
-                    for content_name, value
-                    in zip(self.content_layers, content_outputs)}
-
-    style_dict = {style_name: value
-                  for style_name, value
-                  in zip(self.style_layers, style_outputs)}
-
-    return {'content': content_dict, 'style': style_dict}

@@ -18,36 +18,6 @@ class ImageProcessor(StyleTransferProcessor):
         operation = manipulation['operation']
         parameter = manipulation['parameter']
 
-        if operation == 'brightness':
-            enhancer = ImageEnhance.Brightness(im)
-            im = enhancer.enhance(parameter)
-
-        elif operation == 'contrast':
-            enhancer = ImageEnhance.Contrast(im)
-            im = enhancer.enhance(parameter)
-
-        elif operation == 'saturation':
-            # Perform saturation changes (convert to HSV, modify, and convert back to RGB)
-            im = im.convert("HSV")
-            im = ImageEnhance.Color(im).enhance(parameter)  # Adjust the factor as needed
-            im = im.convert("RGB")
-        elif operation == 'style_transfer':
-            myStylePath = "/resources/styles/Pierre-Auguste_Renoir_42.jpg"
-            im = ImageProcessor.styleTransferImage(im
-                                                  ,myStylePath
-                                                  ,style_weight =   1e-2
-                                                  ,content_weight = 1e4
-                                                  )
-        return im
-
-    @staticmethod
-    def manipulateImage(im, manipulation):
-        if manipulation is None or not isinstance(manipulation, dict):
-            return im
-
-        operation = manipulation['operation']
-        parameter = manipulation['parameter']
-
         # Basic Image manipulations
         if operation == 'brightness':
             enhancer = ImageEnhance.Brightness(im)
