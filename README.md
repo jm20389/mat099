@@ -13,7 +13,7 @@ The respository is structured as follows:
 - ```datasets/``` Korus and Dresden dataset pictures
 
 # Test results
-- For a detailed description of the experiments and results obtained please refer to our [report](/docs/report/report.pdf).
+- For a detailed description of the experiments and results obtained please refer to our [report](/documentation/report/report.pdf).
 
 # Example usage
 
