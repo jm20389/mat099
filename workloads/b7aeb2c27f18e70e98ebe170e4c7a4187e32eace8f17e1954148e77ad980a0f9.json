@@ -1,0 +1,20 @@
+{
+  "id": "1703027498.1142032",
+  "experiment": 10,
+  "sequence": "a",
+  "timestamp_created": "2023-12-20T00:11:38.114210",
+  "timestamp_completed": "2023-12-22T01:09:21.940597",
+  "state": "complete",
+  "manipulation": {
+    "operation": null,
+    "parameter": null
+  },
+  "deviceList": [
+    "D44",
+    "D45",
+    "D46"
+  ],
+  "error_message": "[Errno 2] No existe el archivo o el directorio: 'output/pce_histograms/histogram_20231222010731.png'",
+  "timestamp_error": "2023-12-22T01:07:32.125925",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/joseca/mat099/classes/WorkloadManager.py\", line 190, in runWorkloadSingle\n    result = PRNUHandler.runWorkload(wl)\n  File \"/home/joseca/mat099/classes/PRNUManager.py\", line 29, in runWorkload\n    stats_cc, stats_pce, k = PRNUManager.testPRNU(image_manipulation = wl['manipulation'], deviceList = wl['deviceList'])\n  File \"/home/joseca/mat099/classes/PRNUManager.py\", line 89, in testPRNU\n    pce_rot[fingerprint_idx, natural_idx] = PRNUProcessor.pce(cc2d)['pce']\n  File \"/home/joseca/mat099/classes/PRNUProcessor.py\", line 637, in pce\n    plt.savefig(save_path)\n  File \"/home/joseca/.local/lib/python3.10/site-packages/matplotlib/pyplot.py\", line 1023, in savefig\n    res = fig.savefig(*args, **kwargs)\n  File \"/home/joseca/.local/lib/python3.10/site-packages/matplotlib/figure.py\", line 3378, in savefig\n    self.canvas.print_figure(fname, **kwargs)\n  File \"/home/joseca/.local/lib/python3.10/site-packages/matplotlib/backends/backend_qtagg.py\", line 75, in print_figure\n    super().print_figure(*args, **kwargs)\n  File \"/home/joseca/.local/lib/python3.10/site-packages/matplotlib/backend_bases.py\", line 2366, in print_figure\n    result = print_method(\n  File \"/home/joseca/.local/lib/python3.10/site-packages/matplotlib/backend_bases.py\", line 2232, in <lambda>\n    print_method = functools.wraps(meth)(lambda *args, **kwargs: meth(\n  File \"/home/joseca/.local/lib/python3.10/site-packages/matplotlib/backends/backend_agg.py\", line 509, in print_png\n    self._print_pil(filename_or_obj, \"png\", pil_kwargs, metadata)\n  File \"/home/joseca/.local/lib/python3.10/site-packages/matplotlib/backends/backend_agg.py\", line 458, in _print_pil\n    mpl.image.imsave(\n  File \"/home/joseca/.local/lib/python3.10/site-packages/matplotlib/image.py\", line 1689, in imsave\n    image.save(fname, **pil_kwargs)\n  File \"/usr/lib/python3/dist-packages/PIL/Image.py\", line 2209, in save\n    fp = builtins.open(filename, \"w+b\")\nFileNotFoundError: [Errno 2] No existe el archivo o el directorio: 'output/pce_histograms/histogram_20231222010731.png'\n"
+}

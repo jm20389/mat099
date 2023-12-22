@@ -75,19 +75,48 @@ def runInstruction(args):
         #                          ,parameters = None
         #                         )
 
-        workloadHandler.generateWorkloads(experiment_num = 7 # style transfer low3
+        # workloadHandler.generateWorkloads(experiment_num = 7 # style transfer low3
+        #                          ,sequence = 'a'
+        #                          ,deviceList = ['D51', 'D52', 'D53']
+        #                          ,operations = None
+        #                          ,parameters = None
+        #                         )
+
+        # workloadHandler.generateWorkloads(experiment_num = 7 # style transfer low4
+        #                          ,sequence = 'a'
+        #                          ,deviceList = ['D54', 'D55', 'D56']
+        #                          ,operations = None
+        #                          ,parameters = None
+                                # )
+
+        # workloadHandler.generateWorkloads(experiment_num = 8 # normal test, just to try the pce histogram plot
+        #                          ,sequence = 'a'
+        #                          ,deviceList = ['D01', 'D02', 'D03']
+        #                          ,operations = None
+        #                          ,parameters = None
+        #                         )
+
+        # workloadHandler.generateWorkloads(experiment_num = 9 # repeat low4 style transfer test (exp 7) but plotting pce histogram
+        #                     ,sequence = 'a'
+        #                     ,deviceList = ['D54', 'D55', 'D56']
+        #                     ,operations = None
+        #                     ,parameters = None
+        #                 )
+
+        # workloadHandler.generateWorkloads(experiment_num = 10 # style transfer med
+        #                          ,sequence = 'a'
+        #                          ,deviceList = ['D44', 'D45', 'D46']
+        #                          ,operations = None
+        #                          ,parameters = None
+        #                         )
+
+        workloadHandler.generateWorkloads(experiment_num = 11 # repeat exp 5 but only sierra and saving histograms
                                  ,sequence = 'a'
-                                 ,deviceList = ['D51', 'D52', 'D53']
-                                 ,operations = None
-                                 ,parameters = None
+                                 ,deviceList = ['D01', 'D02', 'D03']
+                                 ,operations = ['sierra']
+                                 ,parameters =  {'sierra':    {'min': 0.5, 'max': 2.0, 'step': 0.2}}
                                 )
 
-        workloadHandler.generateWorkloads(experiment_num = 7 # style transfer low4
-                                 ,sequence = 'a'
-                                 ,deviceList = ['D54', 'D55', 'D56']
-                                 ,operations = None
-                                 ,parameters = None
-                                )
 
         print('Workloads created.')
         quit()

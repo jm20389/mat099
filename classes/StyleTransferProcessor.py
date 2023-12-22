@@ -236,6 +236,8 @@ class StyleTransferProcessor:
     @staticmethod
     def clip_0_1(image):
         return tf.clip_by_value(image, clip_value_min=0.0, clip_value_max=1.0)
+
+
     def style_content_loss(outputs, style_targets, style_weight, num_style_layers, content_targets, content_weight, num_content_layers):
         style_outputs = outputs['style']
         content_outputs = outputs['content']

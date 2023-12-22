@@ -1,3 +1,4 @@
+import tensorflow as tf
 class StyleContentModel(tf.keras.models.Model):
     def __init__(self, style_layers, content_layers):
         super(StyleContentModel, self).__init__()

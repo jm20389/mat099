@@ -620,6 +620,26 @@ class PRNUProcessor(ImageProcessor, PickleHandler, DatasetProcessor):
         out['pce'] = (peak_height ** 2) / pce_energy * np.sign(peak_height)
         out['cc'] = peak_height
 
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        from matplotlib import pyplot as plt
+
+        if not os.path.exists('output/pce_histograms'):
+            os.makedirs('output/pce_histograms')
+
+        save_path = f'output/pce_histograms/histogram_{timestamp}.png'
+        plt.hist(cc.flatten(), bins=50, color='blue', alpha=0.7)
+        plt.axvline(x=peak_height, color='red', linestyle='dashed', linewidth=2, label='Peak Height')
+
+        plt.yscale('log')
+
+        plt.title('Cross-correlation Histogram with PCE Peak (Log Scale)')
+        plt.xlabel('Cross-correlation Values')
+        plt.ylabel('Frequency (Log Scale)')
+        plt.legend()
+        plt.savefig(save_path)
+        plt.close()
+
         return out
 
     """

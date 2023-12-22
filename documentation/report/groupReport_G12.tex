@@ -1,0 +1,1100 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  11pt,
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[]{times}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Detection and recognition of traffic signs},
+  pdfauthor={J. Mendoza; C. Huang; G. Jia; H. Zhang; M. Esposito; M. Jepson; X. Zhu; Z. Tang},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Detection and recognition of traffic signs}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{CMT307 Group 12 - Supervisor: Dev Kant}
+\author{J. Mendoza; C. Huang; G. Jia; H. Zhang; M. Esposito; M. Jepson;
+X. Zhu; Z. Tang}
+\date{19 diciembre 2023}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+We trained a deep convolutional neural network to classify 12,630
+low-resolution pictures from the German Traffic Sign Recognition
+Benchmark (GTSRB). On the test data, we achieved top-1 and top-3
+accuracies of 97.9\% and 99.3\% The neural network, which has 1,225,803
+parameters, consists of 4 convolutional layers, 2 MaxPooling layers, 6
+BatchNormalization layers, 5 Dropout layers and a final 43-way softmax.
+\end{abstract}
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\pagebreak
+
+\hypertarget{intro}{%
+\section{1. Introduction}\label{intro}}
+
+\textbf{Summary of the task and main goals/contributions/insights of the
+project.}
+
+The scope of this project is to develop a machine learning model capable
+of identifying and classifying traffic sign pictures, what is known in
+the industry as \emph{Computer Vision.}
+
+The data sources to train and test this model were obtained from the
+German Traffic Sign Recognition Benchmark (GTSRB)\footnote{\url{https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/published-archive.html}}.
+The project will consist of several python scripts that will decode
+pictures into numpy arrays to build the initial dataset, then analyze
+and pre-process these pictures, to finally be fed into a
+\emph{Convolutional Neuronal Network} (\textbf{CNN} from now on) whose
+performance and implementation will be discussed, alongside different
+strategies and alternatives to improve its performance. The choice of
+this machine learning method, as well as the CNN architechture and other
+computer vision alternatives, will be discussed in the later sections of
+this report.
+
+The jupyter notebook supporting this work is divided in three sections,
+numbered from 1 to 3, corresponding to: \textbf{Exploratory Data
+Analysis, Data Preprocessing and Model Implementation.}
+
+\hypertarget{main-challenges}{%
+\subsection{1.1 Main challenges}\label{main-challenges}}
+
+It is important to note that we are working with a highly complex
+dataset, and most of the steps are demanding in terms of computer power
+and time. We are implementing a computer vision project using
+\textbf{home computers / student laptops} with no GPU unit, and with the
+only support of \textbf{Google Colab} in its standard version when
+training a CNN, having restrictive runtimes and long cooldown periods
+between sessions. These facts pose a significant restriction in terms of
+the amount of simulations and parameter variations we can afford. This
+fact will be addressed in the corresponding sections of this work.
+
+In addition, and when possible, we avoided using library methods, and
+instead, we tried to build our own algorithms. Whereas it is a common
+practice in machine learning to use Tensorflow's pre-built data
+pre-processing methods, and because this is an academic project, we
+built our algorithms to transform the pictures to reinforce our skillset
+in data science. All the deep learning methods and analysis have been
+deployed using Google's open-source software libraries
+\textbf{Tensorflow \& Keras}\footnote{\url{https://www.tensorflow.org/}}
+
+\hypertarget{sec:literature}{%
+\section{2. Literature review and related work}\label{sec:literature}}
+
+The biggest impact of the introduction of these types of networks is the
+significant reduction in computation workload, and this posed a notable
+benefit in the field of image processing. The reason why the Computer
+Vision technology has taken off during the recent years is due to reduce
+is hardware cost, increase on processors speed, and affordable better
+access for developers to big data storage pools.
+
+CNN performance is heavily reliant in its architecture. The go-to
+reference for every Computer Vision engineer is the \textbf{Alexnet}
+model (\protect\hyperlink{ref-alexnet}{\textbf{alexnet?}}), competing in
+the \emph{ImageNet Large Scale Visual Recognition Challenge} on
+September 30, 2012, achieving a top-5 error of 17\%. It was one of the
+first implementations of the use of GPU's (graphical process unit) for
+model training, consisting of 5 convolutional layers - some of them
+followed by max-pooling layers - and three fully-connected layers with a
+final 1000-way softmax. The resulting number of parameters is 60 million
+and 650,000 neurons. This is an acclaimed model widely used and adapted
+for many research projects. However, this model requires an input size
+of 256x256 pixels, whereas our dataset has a much smaller average
+picture size. \textbf{We wouldn't be able to use any version of Alexnet,
+as feeding small pictures into this convolution funnel would result in
+the pictures having a ``zero'' size by layer 5.}
+
+Instead, we look into one of the precursors of this network, the
+\textbf{lenet-5} architecture
+(\protect\hyperlink{ref-lenet5}{\textbf{lenet5?}}) published in 1998 for
+a handwrite recognition project. Alexnet is a variant of the CNN designs
+introduced by Yann LeCun, and was one of the first architectures that
+became popular. \textbf{It would be a good fit our dataset as the
+original input size was 32x32, significantly smaller.} It has 5 layers
+with learnable parameters, the input to the model is a grayscale image,
+it has 3 convolution layers, two average pooling layers, and two fully
+connected layers with a softmax classifier. The number of trainable
+parameters is 60000.
+
+Aurélien Géron reviews the evolution of the state of the art CNN
+architectures (\protect\hyperlink{ref-geron01}{Géron 2019}) that
+followed Alexnet, improving the ILSVRC rakings. Christian Szegedy et
+al.~develops \emph{GoogLeNet} in 2014 with the introduction of
+\emph{subnetworks} or ``inception modules'', resulting in a network
+having less parameters than Alexnet. Also in 2014 Karen Simonyan and
+Andrew Zisserman develops \textbf{VGGNet}, being the runner-up in the
+ILSVRC for that year. We see that from here trending architectures start
+to grow in complexity: In 2015 Kaiming He et al.~develops
+\textbf{ResNet} - alias for \emph{Residual Network} - with a 152 layers
+depth, whose training is achieved by skip connections within the layer
+structure.
+
+The success of the aforementioned models was due to a clever design and
+implementation, producing excellent results with efficient computational
+times and resources. Recent works are now investigating alternatives to
+reduce architectures' parameters and computational effort without
+compromising their performance, for example Binarized/Quantized Neural
+Networks (BNNs) and Neural Ordinary Differential Equations (Neural
+ODEs). Gabriel Machado et al.
+(\protect\hyperlink{ref-machado}{\textbf{machado?}}) argue if these
+algorithms are actually robust enough to be used in
+\textbf{safety-critical environments.} Autonomous driving is one of
+these critical areas where incorrect decisions or misclassifications
+could have severe consequences. \textbf{Adversarial attacks} are usually
+conducted in the form of subtle perturbations generated by an
+optimization algorithm and inserted into a legitimate image to produce
+an adversarial example that is known as adversarial image. Securing
+against adversarial attacks is crucial for the future of several
+applications and the article categorizes the most relevant proactive and
+reactive countermeasures according to their operational approach, which
+can be: gradient masking, auxiliary detection models, statistical
+methods, preprocessing techniques, ensemble of classifiers, and
+proximity measurements.
+
+It follows that CNN design has become a critical area of research with
+the emerge of computer vision. However, CNN researchers may not be
+specialists in the area of application where these architectures are to
+be deployed, and users who are familiar with the data at hand do not
+necessarily have the experience in designing CNN's. A solution for this
+dilemma is the use of \textbf{genetic algorithms} - CNN-GA - to automate
+the optimization of CNN structures. Yanan Sun et al propose a genetic
+algorithm in their article
+(\protect\hyperlink{ref-genetic}{\textbf{genetic?}}) .
+
+Finally, one recent architecture is \textbf{SENet}
+(\protect\hyperlink{ref-senet}{\textbf{senet?}}) achieving a 2.25\%
+top-five error rate in 2017 at the ILSVRC. SENet adds a small neural
+network called SE block to every unit in the original architecture.
+SENet focuses on the depth dimension and takes advantage of picture
+feature clustering, reducing irrelevant feature maps. Variants of this
+model have been implemented for breast cancer image classification, see
+(\protect\hyperlink{ref-jiang}{\textbf{jiang?}}) where a new learning
+rate scheduler is proposed to get an excellent performance without
+complicatedly fine-tuning the learning rate, yielding results between
+98.87\% and 99.34\% \& 90.66\% and 93.81\% for binary and multi-class
+classification.
+
+\pagebreak
+
+\hypertarget{description-of-the-task-and-dataset}{%
+\section{3. Description of the task and
+dataset}\label{description-of-the-task-and-dataset}}
+
+The GTSRB datset contains 43 classes of traffic signs, split into 39,209
+training images and 12,630 test images. Having built a dataframe from
+decoded picture data, we will use the python libraries \textbf{pandas}
+and \textbf{pyplot} to analyze and visualize the train dataset. Before
+we start exploring, we display a sample of 25 random pictures from the
+test set to explore different aspects to consider. It could be seen that
+not all the pictures are clearly visible which means the brightness and
+contrast ratio are various. It also exists disparity in shape of the
+pictures, as well as the aspect ratio.
+
+\hypertarget{number-of-instances-per-category}{%
+\subsection{3.1 Number of instances per
+category}\label{number-of-instances-per-category}}
+
+As this is a \textbf{classification} project, it is critical to identify
+characteristics which are inherent to each \textbf{category}. The
+dataset has got 43 categories corresponding to different traffic signs.
+
+We aimed to see how many pictures each group contains. The analysis
+indicated that the minority categories are `Max Speed 20 km/h', `Ahead
+or turn left only' and `Left curve' having around 200 pictures, and the
+category with the largest number of pictures is `Max Speed 50 km/h' with
+2250 pictures. As a footnote, the average number of pictures per
+category is 912.
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth,height=\textheight]{images/num_pictures_barplot.png}
+\caption{Number of pictures per category}
+\end{figure}
+
+The conclusion from this analysis is that there are a few categories
+highly populated, with more than 2000 pictures, whilst other categories
+have around 200. Having a category with 10 times more instances than
+others could cause the model to have a bias and this issue will be
+addressed during the data processing step, when we perform data
+augmentation to increase the number of pictures and balance the dataset.
+
+\hypertarget{picture-size-and-aspect-ratio}{%
+\subsection{3.2 Picture size and aspect
+ratio}\label{picture-size-and-aspect-ratio}}
+
+Subsequently we were going to confirm whether the majority of pictures
+have a squared shape, with a 1:1 height and width ratio. The width and
+height boxplots were created revealed that the median is 43.0 for both.
+
+We are also interested in seeing the size of the pictures, as well as
+its shape.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.75\textwidth,height=\textheight]{images/dimension_ranges.png}
+\caption{Dimension Ranges}
+\end{figure}
+
+When looking at individual categories, we can work out the predominant
+aspect ratio. All categories show a 45-degree line shape when performing
+a width vs height scatter plot, what means that the predominant aspect
+ratio is 1:1 (squared pictures):
+
+We can also observe that a few pictures diverge from this shape so this
+fact will be addressed during image preprocessing. Categories like
+``Yield'' and ``Bicycle crossing'' have a few pictures away from the 1:1
+ratio. It follows from this analysis that all pictures will need to be
+resized to have the same dimensions, and cropped to a 1:1 ratio when
+neccesary before resizing, to avoid unwanted distortion.
+
+\hypertarget{brightness}{%
+\subsection{3.3 Brightness}\label{brightness}}
+
+Individual picture features are complex to analyze, as this needs to be
+supported by RGB histograms of pixel intensity distributions. To capture
+a \textbf{metric} for this project, we calculate the average pixel
+intensity of each picture to get an idea of how bright the pictures from
+each category are distributed.
+
+A boxplot for categories was built ordering aggregated values by the
+median. From the output of average pixel intensity, values rise and fall
+within a range of 50 to 150.
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth,height=\textheight]{images/pixel_intensity_boxplot.png}
+\caption{Box plot of average pixel intensity per category}
+\end{figure}
+
+In this plot, we can see how average picture intensity spreads.
+
+By plotting a histogram, we can also see how bright and dark pictures
+are distributed, and we can also identify whether the pictures are
+divided in groups, like bright and dark pictures, this could represent
+pictures taken at daytime or night:
+
+From this visualization, it follows that all categories seem to have a
+reasonable variety of picture intensities therefore additional
+processing for this feature won't be required.
+
+\pagebreak
+
+\hypertarget{image-preprocessing}{%
+\section{4. Image preprocessing}\label{image-preprocessing}}
+
+\hypertarget{dataset-shortcomings}{%
+\subsection{4.1 Dataset shortcomings}\label{dataset-shortcomings}}
+
+Before feeding the images to the neural network, special care was taken
+in \textbf{dealing with all non-ideal aspects} of the training dataset.
+These are the insights found from the above section and how we dealt
+with them:
+
+A. \textbf{Varying aspect ratio and size} - even the majority of
+pictures have squared shape, a marginal amount of them is rectangular.
+
+B. \textbf{Misbalanced dataset} - not all categories share the same
+number of pictures.
+
+C. \textbf{Diverse color, brightness and background} - the pictures were
+taken from a diverse source of environment conditions in terms of
+brightness, ambience, backgrounds, etc.
+
+\hypertarget{data-preprocessing-strategies}{%
+\subsection{4.2 Data preprocessing
+strategies}\label{data-preprocessing-strategies}}
+
+The above issues were addressed performing several data preprocessing
+techniques as described below:
+
+A. \textbf{Picture resizing} - In section 2.0 we calculate the aspect
+ratio of the pictures and crop into a square shape those whose ratio
+diverges more than 20\% from 1:1. The scope is to avoid excessive
+distortion from rectangular pictures when resized into a standard
+squared shape. The algorithm we built to crop the pictures is an own
+invention and is described in Appendix II. The 20\% criteria was
+determined after observing the histogram of aspect ratios from the whole
+dataset. Then in section 2.2 all pictures were resized to have the same
+dimensions. The most frequent picture size is 43x43, as we saw in
+section 1, however due to high computational times we decided to
+\textbf{standardize the picture size to 30x30} to reduce the weight of
+the training dataset. These values are \textbf{well centered within the
+interquartile range} and are a good representation of a typical picture
+from the set.
+
+B. \textbf{Data augmentation} - Overfitting can be caused by having too
+few samples to learn from. Data augmentation takes the approach of
+generating more training data from existing training samples, by
+augmenting the samples via a number of random transformations that yield
+believable-looking images. This helps expose the model to more aspects
+of the data and generalize better. We used Tensorflow's image generator
+to manipulate pictures in terms of size, rotation, location, shear and
+zoom. The scope is to create more pictures for the least populated
+categories. Every category had a number of newly created pictures until
+the amount of them matched the initially most populated category (number
+2). The algorithm we used to generate the pictures is built on top of
+Kera's \emph{ImageDataGenerator} instance and will return a random
+operation alongside its corresponding values, within a range.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth,height=\textheight]{images/data_augmentation_viz.png}
+\caption{Data Augmentation samples}
+\end{figure}
+
+C. \textbf{Dimensionality reduction} - As an attempt to standardize the
+aforementioned environment conditions, all pictures were converted to
+black and white.
+
+We follow the \textbf{ITU-R recommendation} \emph{BT.601} \footnote{\url{https://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.601-7-201103-I}!!PDF-E.pdf}
+combining a weighted amount of the three RGB slices: The red color has
+the largest wavelength of all the three, on the contrary, green is the
+color with the shortest wavelength and the one that gives more soothing
+effect to the eyes.
+
+It means that we have to decrease the contribution of red color,
+increase the contribution of the green color, and put blue color
+contribution in between these two. We applied the \emph{compensation
+formula} 0.2989 * R + 0.587 * G + 0.114 * B .
+
+It is important to note that the above convention was meant for picture
+display for the human eye when converting to grayscale. However
+different conversion algorithms may result in higher or lower picture
+contrast, which may be more or less convenient for computer vision. The
+choice of a grayscale conversion is beyond the scope of this work and
+therefore we chose a standard conversion algorithm.
+
+\hypertarget{transformed-dataset}{%
+\subsection{4.3 Transformed dataset}\label{transformed-dataset}}
+
+The resulting dataset, following the above processing:
+
+\begin{itemize}
+\tightlist
+\item
+  Contains uniform data input as all the pictures have the same size and
+  aspect ratio, being the data normalized (pixel intensities from 0. to
+  1.).
+\item
+  Is a balanced source of fairly represented categories with the same
+  number of instances for each class.
+\item
+  Has a rich source of varying intensities for each class.
+\end{itemize}
+
+The above transformations were also applied to the \textbf{test dataset}
+for evaluation consistency (except for the data augmentation).
+
+\pagebreak
+
+\hypertarget{methodology}{%
+\section{5. Methodology}\label{methodology}}
+
+To build the classifier, we will use a \emph{Convolutional Neural
+Network}, or \emph{CNN} . Unlike \emph{Deep Neural Networks} , or
+\emph{DNN} , the layers of a CNN are not fully connected, but instead
+features are extracted from the input images by sliding a convolution
+filter to produce a map.
+
+\hypertarget{cnn-architecture}{%
+\subsection{5.1 CNN Architecture}\label{cnn-architecture}}
+
+Several models were trained before implementing \textbf{the final
+version described below,} as we will see in the upcoming sections. We
+decided to implement a Kera's CNN model with \textbf{4 convolutional
+layers.} This architecture has shown to give the best performance with
+decent computation times. The reference models used for this work were
+obtained from the ML researcher James Le github repository (see
+(\protect\hyperlink{ref-jlgithub}{\textbf{jlgithub?}})).
+
+In the final version, two models were built in order to accommodate both
+the color and the black and white datasets. Each model would take as
+input tensors of shape (30,30,3) or (30, 30, 1) correspondingly, by
+passing the argument \emph{input\_shape} to the first layer.
+
+\begin{itemize}
+\item
+  The Conv2D layers are used for the convolution operation that extracts
+  features from the input images by sliding a convolution filter over
+  the input to produce a feature map. Here we choose feature map with
+  size 3 x 3.
+\item
+  The MaxPooling2D layers are used for the max-pooling operation that
+  reduces the dimensionality of each feature, which helps shorten
+  training time and reduce number of parameters. Here we choose the
+  pooling window with size 2 x 2.
+\item
+  To normalize the input layers, we use the BatchNormalization layers to
+  adjust and scale the activations. Batch Normalization reduces the
+  amount by what the hidden unit values shift around (covariance shift).
+  Also, it allows each layer of a network to learn by itself a little
+  bit more independently of other layers.
+\item
+  To combat overfititng, we use the Dropout layers, a powerful
+  regularization technique. It forces the model to learn multiple
+  independent representations of the same data by randomly disabling
+  neurons in the learning phase. For example, the 1st dropout layer will
+  randomly disable 25\% of the outputs.
+\item
+  In total, this model has 4 Conv2D layers, 2 MaxPooling layers, 6
+  BatchNormalization layers, and 5 Dropout layers. The next step is to
+  feed the last output tensor into a stack of Dense layers, otherwise
+  known as fully-connected layers. These densely connected classifiers
+  process vectors, which are 1D, whereas the current output is a 3D
+  tensor. Thus, I need to flatten the 3D outputs to 1D, and then add 2
+  Dense layers on top.
+\item
+  As we are doing a 43-way classification (as there are 43 classes of
+  traffic signs), we use a final layer with 43 outputs and a softmax
+  activation. Softmax activation enables us to calculate the output
+  based on the probabilities. Each class is assigned a probability and
+  the class with the maximum probability is the model's output for the
+  input sign. The softmax function squashes low values and boosts the
+  maximum value
+\end{itemize}
+
+1,221,259 parameters are available to be trained. The output of the
+Conv2D and MaxPooling2D layers are 3D tensors of shape (height, width,
+channels). The number of channels is controlled by the 1st argument
+passed to the Conv2D layer (32). The (4, 4, 128) outputs from the 3rd
+Dropout layer are flattened into vectors of shape (2048,) before going
+through 3 Dense layers.
+
+\hypertarget{loss-function}{%
+\subsection{5.2 Loss function}\label{loss-function}}
+
+When compiling our model, we use \emph{sparse categorical crossentropy}
+as our loss function - to assess the divergence between predictions from
+our model and the actual values or labels - because the classes are
+mutually exclusive (\textbf{multi-class single label classification} , a
+traffic sign can only be of one type), and our input data is
+\textbf{not} one-hot encoding (high number of categories).
+
+\pagebreak
+
+\hypertarget{experimental-setting}{%
+\section{6. Experimental setting}\label{experimental-setting}}
+
+\hypertarget{impact-of-the-number-of-convolutional-layers}{%
+\subsection{6.1 Impact of the number of convolutional
+layers}\label{impact-of-the-number-of-convolutional-layers}}
+
+Two extra models were built, with 1 and 3 convolutional layers, to
+assess the impact of these. After running the models using the color
+white dataset, it was seen that the accuracy improves from 86.4 up to
+98\%, whilst the loss drops from 60.7 to 8.1\% only.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth,height=\textheight]{images/cnn_layers.png}
+\caption{Impact of the number of convolutional layers}
+\end{figure}
+
+Our choice will be to implement a 4 CNN-layer model.
+
+\hypertarget{use-of-different-activation-functions}{%
+\subsection{6.2 Use of different activation
+functions}\label{use-of-different-activation-functions}}
+
+The activation function of choice in our main model was \emph{ReLU}
+(Rectified linear unit) which was popularized after the Alexnet
+breakthrough in 2012 for giving a good compromise of reliability vs
+computational times. However this function is known for the dying neuron
+effect, where some neurons get stuck in a state where they only return a
+value of 0 regardless of further training (see
+(\protect\hyperlink{ref-drelu}{\textbf{drelu?}})). We want to explore
+whether it is worthy to use a computationally expensive alternative.
+
+We created three additional models, based on the 4-layer CNN from the
+earlier test, but changing the \textbf{activation function} . We are
+testing \emph{ELU} (exponential linear unit), \emph{tanh} (hyperbolic
+tangent) and the \emph{sigmoid} function.
+
+The results from this test showed no significant improvement in model
+accuracy and loss. Therefore the implementation of these functions would
+not be profitable in terms of computational cost in case we wanted to
+scale this model into production.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth,height=\textheight]{images/activation_functions.png}
+\caption{Use of different activation functions}
+\end{figure}
+
+\hypertarget{use-of-different-optimizers}{%
+\subsection{6.3 Use of different
+optimizers}\label{use-of-different-optimizers}}
+
+The optimizer is responsible for updating the weights of the neurons via
+backpropagation. It calculates the derivative of the loss function with
+respect to each weight and subtracts it from the weight. In our final
+model we used the classic \emph{Stochastic Gradient Descent} as the
+optimizer. When repeating the training, it was shown that \emph{sgd} was
+within the optimizers that returned the lowest loss results, therefore
+it was kept as our main choice.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.75\textwidth,height=\textheight]{images/optimizer_analysis.png}
+\caption{Use of different optimizers}
+\end{figure}
+
+\hypertarget{dimensionality-reduction}{%
+\subsection{6.4 Dimensionality
+reduction}\label{dimensionality-reduction}}
+
+After determining the final choice for CNN architecture, two identical
+models are built, but with a different input shape to accommodate color
+and black and white pictures, so we can assess the impact of
+dimensionality reduction (1 grayscale vs 3 RGB array slices).
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth,height=\textheight]{images/dimensionality_reduction.png}
+\caption{Dimensionality reduction}
+\end{figure}
+
+\hypertarget{lenet-5-model}{%
+\subsection{6.5 Lenet-5 model}\label{lenet-5-model}}
+
+A Lenet-5 model was built, trained and tested against the black and
+white datasets. This model achieved 89.6\% accuracy and 3.8\% loss, what
+is comparable with our RGB 3-layer CNN model, but with significantly
+less parameters (64,511 vs 361,067) which means that is more efficient,
+and less prone to overfitting due to the lesser amount of trainable
+parameters. However, the training validation accuracy drops slightly
+below the training so we may need to consider an \emph{early stopping}
+using Kera's callbacks method. Further investigation will be required.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth,height=\textheight]{images/lenet5.png}
+\caption{Lenet-5 model training history}
+\end{figure}
+
+\hypertarget{additional-testing}{%
+\subsection{6.6 Additional testing}\label{additional-testing}}
+
+Additional testing, such as modifications in the dropout and dense
+layers were also performed. Due to limitations in computational times in
+Google Colab the results won't be disclosed as the impact of these
+parameters requires further exploration. Looking at the train and
+validation graphs, the final model is not suspected to be overfitting
+and therefore exploration of the dropout layers was not prioritized.
+
+\pagebreak
+
+\hypertarget{results}{%
+\section{7. Results}\label{results}}
+
+We tried \textbf{two different models}, for color and black and white
+pictures, using identical layout and parameters. The input datasets, for
+both training and testing, are identical except for the grayscale
+conversion. \textbf{The black and white model returned the best
+performance results,} showing an evaluation performance of
+\textbf{97.9\% accuracy and 7.1\% loss} when evaluated against the test
+set. The color model returned an accuracy of 97.5\%. \textbf{The
+following analysis will focus on the black and white model} (best
+performance).
+
+\hypertarget{top-k-accuracy}{%
+\subsection{7.1 Top-K accuracy}\label{top-k-accuracy}}
+
+The output from the model is an array with as many elements as
+predictions executed during the evaluation. The prediction consists of a
+\textbf{multinomial distribution} where the category with the highest
+probability is the \textbf{prediction} for each guess. What we call
+\emph{accuracy} is in fact the \textbf{Top-1 accuracy} of the model
+during the evaluation, the proportion of times where \textbf{the
+category with the highest probability corresponds to the true label for
+each instance. } Our model returned a \textbf{97.9\% Top-1 accuracy}
+when evaluated against the Test set. Loss levels are consequently
+\textasciitilde2\%.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth,height=\textheight]{images/bw_history.png}
+\caption{Black and white model training results}
+\end{figure}
+
+We also see that the accuracy returned during the validation stage is
+greater than during the training therefore the model is not likely to be
+overfitting.
+
+When an instance is misclassified, but the category for the true label
+was still within the top-K probabilities from the multinomial
+distribution, it counts as a success for the metric \textbf{Top-K
+accuracy} . It follows that the Top-K error rate is the inverse metric,
+the percentage of fails beyond the top-k guesses. In the \emph{ILSVRC}
+competition, the Top-5 error rate is commonly reported as a good
+indicator for a model performance, however these models are trained to
+be able to classify thousands of different classes. For our project,
+with only 43 different categories, a \textbf{Top-3 accuracy} (or Top-3
+error rate) is more meaningful. The top-3 accuracy returned from our
+model was 99.3\%.
+
+\hypertarget{classification-report-and-confusion-matrix}{%
+\subsection{7.2 Classification report and confusion
+matrix}\label{classification-report-and-confusion-matrix}}
+
+In our notebook the built a confusion matrix, which breaks down the
+relationship of misclassifications during the model evaluation. A 43-way
+matrix is too large to be shown in this report with a decent resolution,
+instead, an error analysis will be performed in the following section.
+The classification report shows a breakdown of precision, recall and
+f1-scores per category. We see that most of the categories perform well
+with exceptions that are investigated below.
+
+\hypertarget{visualize-random-predictions}{%
+\subsection{7.3 Visualize random
+predictions}\label{visualize-random-predictions}}
+
+We put our model into work and visualize some of the predictions
+returned.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth,height=\textheight]{images/bw_predictions.png}
+\caption{Some successful predictions}
+\end{figure}
+
+\pagebreak
+
+\hypertarget{analysis}{%
+\section{8. Analysis}\label{analysis}}
+
+When observing the training/history plots from earlier sections we see
+that the validation results are at the same level of the training set,
+so it is unlikely that the model is overfitting. In order to investigate
+the root cause of the fails, we retrieve the indexes from the failed
+results and plot a grid of failed pictures in order to observe a sample.
+
+\hypertarget{visualize-failed-predictions}{%
+\subsection{8.1 Visualize failed
+predictions}\label{visualize-failed-predictions}}
+
+It is not immediate why these pictures get misclasified, however we can
+see that some signs are damaged, dirty or blocked by environment
+elements, what gives us a hint in terms of what to look for.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.75\textwidth,height=\textheight]{images/failed_predictions.png}
+\caption{Examples of failed predictions}
+\end{figure}
+
+\hypertarget{statistics-of-failed-predictions}{%
+\subsection{8.2 Statistics of failed
+predictions}\label{statistics-of-failed-predictions}}
+
+The basic summary statistics from failed elements are not conclusive.
+Misclassified pictures have similar size, brightness and intensity std
+when compared with good predictions.
+
+Another attempt was made to compare RGB histograms of passed vs failed
+predictions. Again, \textbf{it is not possible to anticipate what type
+of pictures are prone to fail from aggregated statistics.}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth,height=\textheight]{images/failed_pic_statistics_bw.png}
+\caption{Aggregated statistics from failed predictions}
+\end{figure}
+
+\hypertarget{top-3-error-rate-visualization}{%
+\subsection{8.3 Top-3 error rate
+visualization}\label{top-3-error-rate-visualization}}
+
+Grouping the fails by category can give us an idea of what type of signs
+are the most problematic.
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth,height=\textheight]{images/top3_error.png}
+\caption{Number of fails per category having fails}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth,height=\textheight]{images/top3_hist.png}
+\caption{Number of fails within and beyond the top-3 guesses}
+\end{figure}
+
+We see that some of the categories with a large number of fails are
+\emph{Do not enter}, \emph{General danger}, \emph{Uneven road surface}.
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth,height=\textheight]{images/priority_road_fails.png}
+\caption{Fails from the category Do not enter}
+\end{figure}
+
+When plotting a few pictures of misclassified examples from these
+categories, we can easily understand the reasons:
+
+\begin{itemize}
+\tightlist
+\item
+  Common failure mechanisms are shadows over the signs, dirt or damage,
+  etc. This makes them hard to be recognized not only for the computer
+  vision engine, but sometimes to the human eye as well.
+\item
+  Some urban signs, like \emph{Priority road}, are typically found in
+  residential areas, the signs are \textbf{often blocked by trees or
+  light posts.}
+\item
+  The features of some signs make them more sensitive to a lack of
+  contrast (white and yellow colors often show similar intensities),
+  reflections and environmental conditions.
+\item
+  Due to the lack of high contrast features, these pictures are more
+  prone to feature or information loss \textbf{when resized to small
+  size.}
+\end{itemize}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.2\textwidth,height=\textheight]{images/failed_sign_1.png}
+\caption{Priority road - failed prediction}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.2\textwidth,height=\textheight]{images/failed_sign_2.png}
+\caption{Pedestrians - failed prediction}
+\end{figure}
+
+\hypertarget{comparison-with-color-set-results}{%
+\subsection{8.4 Comparison with color set
+results}\label{comparison-with-color-set-results}}
+
+Both models returned similar accuracies, however when breaking down the
+fails by category, we see that the \textbf{top problematic categories
+are not the same.} In the color set, the category with the largest
+number of fails is \emph{Do not enter} . It catches our attention that
+this a colorful traffic sign, mostly red, and environmental conditions
+such as light and reflections would result in \textbf{larger source of
+variation.} The red color has the largest wavelength of all the three
+RGB channels, this is attenuated when converting to grayscale using the
+\emph{ITU-R BT.601} conversion formula (applying a penalty to the red
+slice in favor of the green one). Other signs like \emph{Stop} are also
+predominantly red, but contains more easily recognizable information
+(words). We tried to visualize RGB histograms from a random set of good
+and failed color picture predictions, with inconclusive results.
+
+Interestingly, some categories present fails in only one of the models,
+whilst others are problematic for both. For example, the
+\emph{Pedestrians} sign only gave fails in the color model, and
+\emph{End of no passing zone for trucks} did the same in the black and
+white one. Other signs like \emph{Do not enter, General danger, Uneven
+road surface or Priority road} present similar difficulties for both
+models. \textbf{This shows that the use of color has important
+recognizable features in some cases, but poses an inconvenient
+additional source of variation for others.}
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth,height=\textheight]{images/color_bw_comparison.png}
+\caption{Top Failed categories - color vs black and white sets}
+\end{figure}
+
+\pagebreak
+
+\hypertarget{conclusion-and-future-work}{%
+\section{9. Conclusion and future
+work}\label{conclusion-and-future-work}}
+
+\hypertarget{importance-of-the-context}{%
+\subsection{9.1 Importance of the
+context}\label{importance-of-the-context}}
+
+When looking at the big picture, the scope of this classification is to
+support \textbf{Autonomous Driving.} Traffic sign recognition is only
+one leg of a complex system whose purpose is to take certain decisions
+in the safest way, so additional pipelines of data can work together:
+GPS location, vehicle speed, object location, etc. could contribute to
+tune the output of the model: For example, when in an urban area, it is
+unlikely to find a genuine 120 km/h sign, so this has to be accounted
+and used as a \textbf{barrier} to reduce the number of
+misclassifications. In addition, urban signs such as priority road,
+pedestrians, etc. are more likely to be obstructed by trees or other
+elements when compared with high speed signs, whose locations are likely
+to be clear roads.
+
+\hypertarget{further-improvements}{%
+\subsection{9.2 Further improvements}\label{further-improvements}}
+
+To deal with obstacles blocking traffic signals, it is suggested that
+\textbf{Semantic segmentation} could be a reasonable step to take and
+combine when implementing an autonomous driving system. See
+(\protect\hyperlink{ref-lakshmanan01}{\textbf{lakshmanan01?}}), in
+semantic segmentation pixels are grouped by different categories, we
+could for example, create outlines and shapes of pixels corresponding to
+obstacles (like trees or posts) and traffic signs. In this way, one
+pixels corresponding to a ``traffic sign'' would be used as the input
+for the CNN. However this would imply an extra step of image processing.
+
+Additional statistical analysis could be done for individual categories,
+in order to anticipate possible fails. This could lead to additional
+image preprocessing to reduce or capture additional variation from the
+color channels.
+
+The next step would be keep tunning the CNN architecture. At this point
+we would need a more advanced strategy to progress.
+(\protect\hyperlink{ref-chollet01}{\textbf{chollet01?}}) suggests some
+python libraries to schedule hyperparameter tunning: Hyperopt
+(\url{https://github.com/hyperopt/hyperopt}), a Python library for
+hyperparameter optimization that internally uses trees of Parzen
+estimators to predict sets of hyperparameters that are likely to work
+well, and Hyperas (\url{https://github.com/maxpumperla/hyperas}),
+integrating Hyperopt for use with Keras models. The use of \emph{genetic
+algorithms} would be another good alternative
+((\protect\hyperlink{ref-genetic}{\textbf{genetic?}})).
+
+\hypertarget{final-assessment}{%
+\subsection{9.3 Final assessment}\label{final-assessment}}
+
+We built a model that was fed with a reasonably balanced dataset and a
+fairly reliable picture quality. This returned high yield results
+(\textasciitilde98\% accuracy). There were limitations in terms of
+computing power forcing us to use a small picture dataset resulting a
+loss of picture definition and features.
+
+Further exploration could be performed in terms of brightness for
+pictures taken in poor conditions, and the inclusion of image
+segmentation could lead to a better classification. In the end, we are
+happy with the results obtained considering the resources we had in
+terms of computing availability and time.
+
+\pagebreak
+
+\hypertarget{appendix-1}{%
+\section{Appendix 1}\label{appendix-1}}
+
+\hypertarget{additional-visualizations-from-exploratory-data-analysis}{%
+\subsection{Additional visualizations from exploratory data
+analysis}\label{additional-visualizations-from-exploratory-data-analysis}}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.7\textheight]{images/aspect_ratio_per_category.png}
+\caption{Original aspect ratio per category}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.75\textheight]{images/pixel_intensity_distribution.png}
+\caption{Average pixel intensity distribution per category}
+\end{figure}
+
+\pagebreak
+
+\hypertarget{appendix-2}{%
+\section{Appendix 2}\label{appendix-2}}
+
+\hypertarget{cnn-architectures-used-for-image-classification}{%
+\subsection{CNN Architectures used for image
+classification}\label{cnn-architectures-used-for-image-classification}}
+
+Color set:
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.7\textheight]{images/model_plot.png}
+\caption{CNN model implemented using the color set}
+\end{figure}
+
+\pagebreak
+
+Black and white set:
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.7\textheight]{images/model_bw_plot.png}
+\caption{CNN model implemented using the black and white set}
+\end{figure}
+
+\pagebreak
+
+\hypertarget{appendix-3}{%
+\section{Appendix 3}\label{appendix-3}}
+
+\hypertarget{image-transformation-algorithms}{%
+\subsection{Image transformation
+algorithms}\label{image-transformation-algorithms}}
+
+\textbf{Picture crop}
+
+Let \(D\) be an array containing the \textbf{slicing indexes}:
+
+\[ D = 
+\begin{pmatrix}
+\ y_{1} & y_{2} & x_{1} & x_{2}\
+\end{pmatrix} 
+\]
+
+Where:
+
+\(y_{1}, y_{2}\) : start and end slicing values corresponding to the
+\(y\) axis
+
+\(x_{1}, x_{2}\) : start and end slicing values corresponding to the
+\(x\) axis
+
+Can be obtained as follows:
+
+\[ D = A \times B + C =
+\begin{pmatrix}
+\frac{L - l}{2} & \frac{L + l}{2}\\
+\end{pmatrix} 
+\times
+\begin{pmatrix}
+(1-d) & 0 & d & 0 \\
+0 & (1-d) & 0 & d \\
+\end{pmatrix} +
+\begin{pmatrix}
+0 & d \cdot L & 0 & (1-d) \cdot L \\
+\end{pmatrix}
+\]
+
+Where:
+
+\(L\) : long side of the picture
+
+\(l\) : short side of the picture
+
+\(d\) : dimension code for the \textbf{long} side, either 0 or 1 ( \(y\)
+or \(x\) axis)
+
+This algorithm takes advantage of the binary encoding of the \(y\) and
+\(x\) dimensions, corresponding to indexes \(0\) and \(1\) in the numpy
+array, to cancel terms depending on the \textbf{long} side of the
+picture. The long dimension of the array is obtained using the
+\emph{argmax} function from the numpy library.
+
+\pagebreak
+
+\hypertarget{appendix-4}{%
+\section{Appendix 4}\label{appendix-4}}
+
+\hypertarget{data-sources}{%
+\subsection{Data sources:}\label{data-sources}}
+
+\hypertarget{picture-dataset}{%
+\subsubsection{Picture dataset:}\label{picture-dataset}}
+
+\url{https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/published-archive.html}
+
+\hypertarget{test-set-labels-test.csv}{%
+\subsubsection{\texorpdfstring{Test set labels \emph{Test.csv}
+:}{Test set labels Test.csv :}}\label{test-set-labels-test.csv}}
+
+\url{https://www.kaggle.com/datasets/meowmeowmeowmeowmeow/gtsrb-german-traffic-sign}
+
+\hypertarget{shivank-sharmas-kaggle-project-using-the-gtsrb-dataset}{%
+\subsubsection{Shivank Sharma's Kaggle project using the GTSRB
+dataset:}\label{shivank-sharmas-kaggle-project-using-the-gtsrb-dataset}}
+
+\url{https://www.kaggle.com/code/shivank856/gtsrb-cnn-98-test-accuracy/notebook}
+
+\pagebreak
+
+\hypertarget{citations}{%
+\section*{Citations}\label{citations}}
+\addcontentsline{toc}{section}{Citations}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-geron01}{}}%
+Géron, Aurélien. 2019. \emph{Hands on Machine Learning with Scikit
+Learn, Keras and Tensorflow}. Second. O'Relly.
+
+\end{CSLReferences}
+
+\end{document}

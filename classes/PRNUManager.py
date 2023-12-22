@@ -55,8 +55,10 @@ class PRNUManager(PRNUProcessor):
             config = configparser.ConfigParser()
             config.read(config_file_path)
 
-            ff_dir = config['vision_dataset']['ff_dir']
-            nat_dir = config['vision_dataset']['nat_dir']
+            # ff_dir = config['vision_dataset']['ff_dir']
+            # nat_dir = config['vision_dataset']['nat_dir']
+            ff_dir  = "/mnt/669118d5-25c6-4d9a-9660-2787d5d59e99/vision_dataset/ff/*.jpg"
+            nat_dir = "/mnt/669118d5-25c6-4d9a-9660-2787d5d59e99/vision_dataset/nat/*.jpg"
 
         if vision_dataset:
             print('Loading remote Vision Dataset..')

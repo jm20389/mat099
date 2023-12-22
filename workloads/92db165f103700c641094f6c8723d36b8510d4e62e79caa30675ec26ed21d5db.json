@@ -1,0 +1,20 @@
+{
+  "id": "1703025024.8195379",
+  "experiment": 8,
+  "sequence": "a",
+  "timestamp_created": "2023-12-19T23:30:24.819544",
+  "timestamp_completed": "2023-12-22T01:03:41.765692",
+  "state": "complete",
+  "manipulation": {
+    "operation": null,
+    "parameter": null
+  },
+  "deviceList": [
+    "D01",
+    "D02",
+    "D03"
+  ],
+  "error_message": "type object 'datetime.datetime' has no attribute 'datetime'",
+  "timestamp_error": "2023-12-19T23:36:24.985235",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/joseca/mat099/classes/WorkloadManager.py\", line 190, in runWorkloadSingle\n    result = PRNUHandler.runWorkload(wl)\n  File \"/home/joseca/mat099/classes/PRNUManager.py\", line 29, in runWorkload\n    stats_cc, stats_pce, k = PRNUManager.testPRNU(image_manipulation = wl['manipulation'], deviceList = wl['deviceList'])\n  File \"/home/joseca/mat099/classes/PRNUManager.py\", line 89, in testPRNU\n    pce_rot[fingerprint_idx, natural_idx] = PRNUProcessor.pce(cc2d)['pce']\n  File \"/home/joseca/mat099/classes/PRNUProcessor.py\", line 625, in pce\n    timestamp = datetime.datetime.now().strftime(\"%Y%m%d%H%M%S\")\nAttributeError: type object 'datetime.datetime' has no attribute 'datetime'\n"
+}

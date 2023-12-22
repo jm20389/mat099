@@ -1,0 +1,20 @@
+{
+  "id": "1703028981.913854",
+  "experiment": 11,
+  "sequence": "a",
+  "timestamp_created": "2023-12-20T00:36:21.913860",
+  "timestamp_completed": "2023-12-20T01:43:43.289649",
+  "state": "complete",
+  "manipulation": {
+    "operation": "sierra",
+    "parameter": 1.0999999999999999
+  },
+  "deviceList": [
+    "D01",
+    "D02",
+    "D03"
+  ],
+  "error_message": null,
+  "timestamp_error": null,
+  "traceback": null
+}

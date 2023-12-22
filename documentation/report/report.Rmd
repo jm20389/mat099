@@ -1,5 +1,5 @@
 ---
-title: "Evaluating Robustness of PRNU Signatures under Image Manipulations for Device Identification"
+title: "Evaluating Robustness of PRNU Signatures under image enhancing filters used in social media platforms"
 author: "Jose C. Mendoza-Jimenez"
 date: "`r format(Sys.time(), '%d %B %Y', locale = 'en_US.UTF-8')`"
 #date: "`r format(Sys.time(), '%d %B %Y')`"
@@ -26,7 +26,7 @@ geometry: margin=1.1in
 link-citations: yes
 bibliography: refs.bib
 subtitle: 'Master Thesis Dissertation'
-abstract: This scientific article investigates the robustness of Photo-Response Non-Uniformity (PRNU) signatures in the context of camera attribution, specifically addressing challenges posed by prevalent image manipulations in social media. Focused on the realm of computer vision and image forensics, our study delves into the impact of various manipulations encountered in social media environments, including image enhancing techniques, color filters, brightness and contrast adjustments, and the utilization of generative AI, such as Style Transfer. The analysis employs Python-based tools and TensorFlow to assess the efficacy of PRNU signatures in maintaining their integrity amidst these manipulations.
+abstract: We investigate the robustness of Photo-Response Non-Uniformity (PRNU) signatures in the context of camera attribution, specifically addressing challenges posed by image manipulations for picture enhancing in social media platforms. We use a classic classification approach using Peak to correlation Energy. A framework for mass testing is developed so the picture manipulations are performed on the fly during the analysis.
 ---
 
 <!-- set knitr options here -->
@@ -44,7 +44,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # 1. Introduction {#intro}
 
-In recent years, the field of digital forensics has witnessed a growing reliance on Photo Response Non-Uniformity (PRNU) as a powerful tool for camera identification and authentication. PRNU serves as a unique fingerprint embedded in the images captured by a camera, arising from imperfections in the camera sensor. This distinct signature has proven to be a valuable forensic tool, aiding in the verification of image authenticity and the identification of source devices.
+In recent years, the field of digital forensics has seen a growing reliance on Photo Response Non-Uniformity (PRNU) as a powerful tool for camera identification and authentication. PRNU serves as a unique fingerprint embedded in the images captured by a camera, arising from imperfections in the camera sensor. This distinct signature has proven to be a valuable forensic tool, aiding in the verification of image authenticity and the identification of source devices.
 
 In the context of digital forensics, understanding the robustness of PRNU signatures is crucial. This master's thesis aims to investigate the resilience of PRNU camera signatures under various image manipulations and transformations. The study leverages the VISION dataset, a comprehensive collection comprising flatfield and natural images from a diverse set of 31 camera devices. Through systematic experimentation, we will explore the impact of different image alterations on the reliability and stability of PRNU signatures.
 
@@ -58,37 +58,61 @@ Through this research, we anticipate contributing valuable knowledge to the digi
 
 One of the primary challenges in this project is the inherently computational nature of the experiments. The complexity arises from the need to process large images without compromising the integrity of the PRNU signature. Resizing, a common optimization strategy, is ruled out. Instead, to preserve the entirety of the camera signature, experiments involve carefully cropping images to obtain representative portions of the PRNU pattern, often focusing on central areas.
 
-In the quest for meaningful results, the processor has tirelessly executed experiments, both on a personal computer and on the _Google Colab_ platform. The sheer volume of experiments, combined with the intricate nature of each trial, has translated into hundreds of hours of computation on home systems. Additionally, the _Google Colab_ platform, known for its resourcefulness in handling computational tasks, has seen the expenditure of approximately 300 computational units.
+In the quest for meaningful results, the processor has tirelessly executed experiments, both on a personal computer and on the _Google Colab_[^1] platform. The sheer volume of experiments, combined with the intricate nature of each trial, has translated into hundreds of hours of computation on home systems. Additionally, the _Google Colab_ platform, known for its resourcefulness in handling computational tasks, has seen the expenditure of approximately 300 computational units.
+
+[^1]: https://colab.research.google.com/
+
+### Main goal
+
+In this work, we want to use a classic approach for camera identification using the PRNU strategy and applying PCE [@large_scale] to enhance the 2D correlation during the matching. Everything is described below. But we will be working with picture manipulations that mimic simulate enhancing filters that are commonly used in social media platforms. The scope is to see how the classification behaves when strong filters are applied to the natural pictures due to degradation of the signatures in the images following the manipulations.
+
 
 ## 1.1 Main concepts
 
 ### 1.1.1 PRNU
 
+[@multimedia_forensics] explains how every imaging sensor introduces a certain amount of noise to the images it captures slight fluctuations in the intensity of individual pixels even when the sensor plane was lit absolutely homogeneously. One of the breakthrough discoveries in multimedia forensics is that photo-response non-uniformity (PRNU), a multiplicative noise component caused by inevitable variations in the manufacturing process of sensor elements, is essentially a sensor fingerprint that can be estimated from and detected in arbitrary images. [@hany_farid] describes how image forensics take advantage of manufacturing imperfections coming from the silicon wafer photo detectors consist of. When the sensor is exposed to light, the stray electrons combine with those generated by the photo detector, causing slight variations in the final pixel values. 
+
+Handling pixel noise is far from easy because the noise varies randomly from pixel to pixel in the image. Because sensor noise sums with the photo detector signal, it can be modeled with a pixel-wise additive modulation. Imagine that we point our camera at a perfectly uniform gray wall. A noise-free sensor will record an image with the same value at each pixel. Let’s say that this pixel value is 3 The ISO governs the sensitivity of the sensor. In low light conditions, a high ISO is used to make the sensor more sensitive to small amounts of light. Stray electrons and other sources of sensor noise modulate the value of each pixel by adding a small positive or negative value to 128. From pixel to pixel, the amount of modulation varies randomly with a range that depends on temperature, exposure, and ISO. Because these factors can vary across images, the modulation range typically varies from image to image. These factors do not vary within an image, however, so the overall level of noise should be the same throughout an authentic image. When creating a photo composite, it is common to combine multiple images. If the sensor noise in these source images is not the same, the level of noise in the composite will vary across space. Re-sizing, sharpening, or blurring a region within an image may also create variation in the level of noise across space.
+
 *Pixel output*
 
-Considering the impact of manufacturing defects coming from the wafer silicon a sensor is made of, the raw output of a sensor can be expressed as:
+[@original] considers the impact of manufacturing defects coming from the wafer silicon a sensor is made of, the raw output of a sensor can be expressed as:
 $$
 Y = I + IK + \tau D + c + \theta
 $$
 Where $\tau$ is a scalar multiplicative factor whose value is determined by exposure, temperature, and ISO Settings. The matrix c is the matrix of offsets and the dark current factor D is a noise-like signal due to leakage of electrons into pixels' electron wells. $K$ is the PRNU factor. The modeling noise $\theta$ is a collection of all other noise sources, which are mostly random in nature and therefore difficult to use for forensic purposes (readout noise, shot noise, also known as photonic noise, quantization noise, etc.). For spike pixel defects, such as hot or stuck pixels, at least one of the three parameters, $K, D$ and $c$ , becomes large. Even though the parameters could be accurately estimated by taking special test pictures, such as pictures of dark scenes with long exposure, in forensic setting the camera may not be available and the challenge becomes to estimate these three matrices from the limited set of images available to the analyst. We also need to design an estimator for the onset of a defect and an estimator for the acquisition time of an unknown image by detecting it in the presence of defects.
 
-Photo Response Non-Uniformity (PRNU) is a fundamental characteristic inherent to individual image sensors, arising from imperfections and variations during the manufacturing process. It manifests as a unique noise pattern that is present in the output of each sensor pixel when exposed to the same uniform illumination. PRNU is mainly attributed to variations in pixel sensitivity, dark current, and other sensor-specific factors. This noise pattern can be considered akin to a "fingerprint" for the camera sensor and is often treated as a quasi-unique identifier for digital images. PRNU has found significant applications in the field of digital image forensics, where it is employed for source camera identification and authenticity verification. By analyzing the PRNU noise pattern extracted from a given image, experts can determine the camera that captured the image, facilitating the identification of image origins, tampering detection, and even establishing the credibility of digital evidence in legal cases. The ability of PRNU to reveal subtle sensor-specific noise characteristics has revolutionized the field of multimedia forensics, playing a pivotal role in ensuring the integrity and traceability of digital imagery.
-
+PRNU is mainly attributed to variations in pixel sensitivity, dark current, and other sensor-specific factors. This noise pattern can be considered akin to a "fingerprint" for the camera sensor and is often treated as a quasi-unique identifier for digital images. PRNU has found significant applications in the field of digital image forensics, where it is employed for source camera identification and authenticity verification. By analyzing the PRNU noise pattern extracted from a given image, experts can determine the camera that captured the image, facilitating the identification of image origins, tampering detection, and even establishing the credibility of digital evidence in legal cases. The ability of PRNU to reveal subtle sensor-specific noise characteristics has revolutionized the field of multimedia forensics, playing a pivotal role in ensuring the integrity and traceability of digital imagery.
 
 $$
 \text{PRNU}(\mathbf{I}) = \frac{\mathbf{I} - \mathbf{K} \odot \mathbf{I}}{\mathbf{K} \odot \mathbf{I}}
 $$
+
 The normalized correlation:
 $$
 \text{corr}(\mathbf{X,Y}) = \frac     {\mathbf{(X-\bar{X})}  \odot \mathbf{(Y-\bar{Y})}}      {\mathbf{||X-\bar{X}||} \odot \mathbf{||Y-\bar{Y}||} }
 $$
-FOr an image I obtained by a digitarl camera, its noise residual is defined as $W_{\text{I}} = I - F(I)$, where $F$ is a denoising filter. THe major component of the sensor fingerprint is due to photo-response non-uniformity (PRNU), Which can be captured using a multiplicative factor $K$ (the sensor _fingerprint_). Using the model, the noise residual can be written as:
+
+For an image I obtained by a digital camera, its *noise residual* is defined as $W_{\text{I}} = I - F(I)$, where $F$ is a _denoising filter_. The major component of the sensor fingerprint is due to photo-response non-uniformity (PRNU), Which can be captured using a multiplicative factor $K$ (the sensor _fingerprint_). Using the model, the noise residual can be written as:
+
 $$
 W_{\text{I}} = aIK + \theta
 $$
+
 Where $\theta$ stands for all other random noise components, such as the shot noise or the redout noise, and $a$ is an attenuation factor of the same dimension as $K$ that, in general, depends on the image content. 
 
+We compute the noise residual r and suppress most of the scene content by subtracting a denoised version of the image itself: 
+$$
+r = y - f (y) = y - \hat{X}
+$$
+
+where $f$ denotes a denoising algorith. [@handbook] notes that even in the best case, with perfect denoising, $\hat{X}=x$ the remaining noise term is likely to dominate r which, therefore, will be only weakly correlated with the camera PRNU. In the presence of textured areas, however, denoising is typically less accurate and some signal components leak into the residual contributing to reducing the operative SNR, to the point of making detection virtually impossible. Especially in these areas, the effectiveness of the denoising algorithm becomes crucial for the overall performance.
+
+![Example of an image filter applied at different levels of intensity (\#fig:bb2)](images/noise_extract_example.png){width=80%}
+
 The maximum likelihood estimator of the PRNU factor $K$ from images $I^{I}, ... , I^{N}$ has the form:
+
 $$
 \hat{K} = \frac{\sum_{\text{i=1}}^{\text{N}}W_{\text{I}}^{\text{(i)}}I^{\text{(i)}}}{\sum(I^{\text{(i)}})^{\text{2}}}
 $$
@@ -98,49 +122,117 @@ $$
 \rho = corr({W_{\text{J}}}, J\hat{K})
 $$
 
-### 1.1.2 PSNR
+### 1.1.2 PCE
 
-Peak Signal-to-Noise Ratio (PSNR) is a fundamental image quality metric used to assess the fidelity of a reconstructed or compressed image when compared to its original, reference image. PSNR quantifies the level of distortion or noise introduced during the image compression or transmission process and is widely employed in various fields such as image processing, computer vision, and multimedia technology.
+We've just assumed no geometric transforms, however this is rarely the case when dealing with pictures from different sources and environments. In [@large_scale] the PCE is used to overcome these challenges and help with the correlation process to peform camera attribution. We describe this below.
 
-Mathematically, PSNR is calculated as the ratio of the peak signal power (which represents the maximum possible pixel value of the image) to the mean squared error (MSE) between the original and the reconstructed images. The formula for PSNR is typically expressed in decibels (dB):
+#### 1.1.2.1 Cross-correlation functions:
+
+In the code, we use the following approaches to calculate the cross correlation:
+
+- _crosscorr_2d_ 
+The function begins by normalizing both matrices by subtracting their mean and pads them with zeros to match the maximum height and width. The next step involves applying 2D Fast Fourier Transform to both normalized and padded matrices. The function proceeds by computing the element-wise multiplication of the FFTs of k1 and k2 and then applies the inverse FFT. Finally, it returns the real part of the result as a 2D matrix of the same size as the input matrices.
+
+- _aligned_cc Function_
+Aligned cross-correlation is a technique used to compare two sets of PRNU fingerprints while compensating for *potential misalignment* between them. Because of external or undesired factors like rotation, scaling, or translation... the fingerprints may not align perfectly. Aligned cross-correlation tries to find the best alignment between two sets of PRNU fingerprints before computing the cross-correlation.
+
+The function calculates the L2 norm (Euclidean norm) for each row in k1 and k2 for normalization. Then, transposing k2 for efficient matrix multiplication, calculating the cross-correlation matrix (cc), and eventually computing the normalized cross-correlation matrix (ncc) by dividing cc by the outer product of the L2 norms of k1 and k2. 
+
+The final output is a dictionary containing the cross-correlation matrix (cc) and the normalized cross-correlation matrix (ncc).
+
+#### 1.1.2.2 PCE
+
+It is important to use a good comparison method to detect similarities between the different patterns extracted. [@large_scale] is a well known study in the field of PRNU analysis where the *PCE* metric is used. In particular it is used for a large scale identification. The paper presents a large scale test of camera identification from sensor fingerprints, using pictures from _Flickr_[^1], an existing on-line image sharing site. One million images are tested spanning 6896 individual cameras covering 150 models, providing practical estimates of false acceptance and false rejection rates. They use the _Neyman-Pearson criterion_ to set false acceptance probability and the test statistics PCE exhibited significantly thicker tails when compared to theoretical models.
+
+Our test and main method to perform camera attribution using PRNU will rely on the *PCE (Peak-to-Correlation Energy)*. It is a metric used to evaluate the significance of a peak in a cross-correlation map. This parameter is calculated by correlating two images (complete correlation for all possible displacements) and dividing the energy (squared value) in the maximum by the average energy calculated after "removing" the peak surroundings. The PCE is calculated as the ratio of the squared peak height to the correlation energy in the surrounding area, excluding a neighborhood around the peak. Mathematically, it is defined as: $\text{PCE} = \frac{\text{Peak}^2}{\text{Energy in the Surrounding Area}}$
+
+[^1]: https://www.flickr.com/
+
+#### 1.1.2.3 Final statistics
+
+In the end, we are performing a binary classification, as the goal is to say whether a picture belongs to a certain device or not. The _stats_ function takes two main inputs: a cross-correlation matrix (cc) and a boolean multidimensional array representing ground truth (gt). The gt array indicates the true positive and true negative classifications, this is calculated in a separated helper within the class. The final metric for the test is simple: to assess the effectiveness of the classification method, in other words, to see whether the pictures are correctly associated to their source device.
+
+We flatten both the gt and cc arrays to prepare for *ROC* assessment(Receiver Operating Characteristic (ROC) using the _roc_curve_ function from scikit-learn. This is the trade-off between the true positive rate (sensitivity) and the false positive rate (1 - specificity) for different threshold values.
+
+Alongside the ROC metric, the Area Under the Curve *AUC* is calculated using the _auc_ function from scikit-learn as well. The AUC score serves as a quantitative measure of the classifier's ability to separate between positive and negative examples, ranging from 0 to 1.
+
+We also determine the Equal Error Rate *EER*, this is the point on the ROC curve where false positives equal false negatives. This is achieved by identifying the index where the squared difference between the false positive rate (FPR) and (1 - true positive rate) is minimized.
+
+Finally, the computed statistics, including True Positive Rate (tpr), False Positive Rate (fpr), Threshold values (th), AUC score (auc), and Equal Error Rate (eer), are put together into an output dictionary (outdict). This dictionary provides a comprehensive set of metrics for evaluating the performance of the binary classification system represented by the input cross-correlation or normalized cross-correlation matrix.
+
 
 ### 1.1.3 Flatfield and natural images
 
 **Flatfield Images**
-Flatfield images, also known as flat-field calibration images or flat frames, are images taken with a uniform source of light, covering the entire field of view of a camera or imaging device. The purpose of flatfield images is to account for variations in sensitivity and other imperfections across the sensor or detector of the imaging device. These variations can result from differences in pixel response, lens vignetting, and dust or artifacts on the sensor's surface. By dividing the actual image by a flatfield image, these variations can be corrected, resulting in more accurate and consistent image data.
+Flatfield images, also known as _flat-field calibration images_ or _flat frames_, are images taken with a stable and uniform source of light, covering the entire field of view of a camera. This is to account for variations in sensitivity and other imperfections across the sensor or detector of the camera device. These variations may come from differences in pixel response, lens vignetting, and dust or artifacts on the sensor's surface. By dividing the actual image by a flatfield image, these variations can be corrected, resulting in more accurate and consistent image data.
 
 **Natural Images**
-Natural images refer to photographs or visual representations of real-world scenes or objects taken under natural lighting conditions. These images are not artificially manipulated or generated, but rather capture the visual information as it appears in the environment. Natural images are used in various applications, including photography, scientific imaging, computer vision, and machine learning. The complexity and diversity of natural scenes pose challenges for image analysis algorithms due to factors like lighting variations, occlusions, textures, and object shapes.
+On the contrary _Natural_ images refer to photographs or visual representations of real-world scenes or objects taken under natural lighting conditions. These images are not artificially manipulated or generated, but rather capture the visual information as it appears in the environment. Natural images are used in various applications, including photography, scientific imaging, computer vision, and machine learning. The complexity and diversity of natural scenes pose challenges for image analysis algorithms due to factors like lighting variations, occlusions, textures, and object shapes.
 
-In the context of digital image forensics or PRNU analysis, flatfield and natural images can play a role in understanding the characteristics of images and their underlying noise patterns. PRNU, or Photo Response Non-Uniformity, refers to the unique noise pattern introduced by the imaging sensor of a camera. Analyzing PRNU involves differentiating between variations caused by the camera sensor and the natural variations present in a scene, and this analysis can benefit from understanding both flatfield and natural images.
+In our project, from the VISION dataset, for each camera device we have two sets, one made of flatfield images, and another with natural images. We stract the fingerprints using the set of flatfield pictures. Due to resources limitations, images are cropped to a squared area of 512, repeating this procedure for all tests for consistency. The fingerprints are stored as python objects using the pickle module, in this way we can handle a "fingerprint database" to avoid calculating the flatfield fingerprints from each device on each test.
+
+![PRNU processor diagram. Diagram created with lucid.app ](../../diagrams/PRNUProcessor_diagram.png){width=80%}
+
+### 1.1.3 Style Transfer
+
+Our interest in studying style transfer comes from the recent popularity in social media to use this technique as a picture "enhancing" filter. Therefore we wish to incorporate this option as another image filter we can perform tests with. The "Neural style transfer" is an optimization technique that is used to take two pictures, one being the target picture to apply the effect (content) and another picture that will represent the artistic effect we want to impersonate (style picture, such as an artwork from a famous painter)—and blend them together so the output image looks like the content image, but with the style from the style reference image.
+
+_VGG-19_[^2] is a known convolutional neural network whose structure contains 19 layers, a pretrained network architecture. In this project we only use a few layers from the model, for example discarding the ones used for classification purposes, as those are not useful for the style transfer task, whilst we select the ones that extract features that are useful to mimic the artistic style from the style picture source. These are the intermediate layers of the model that get the content and style representations of the image. Starting from the network's input layer, the first few layer activations represent low-level features, such as: edges, textures, appearance... As one keeps going through the network, the final layers represent higher-level features like objects or body parts. These intermediate layers are necessary to define the representation of content and style from the images. Given an input image, we try to match the corresponding style and content target representations at these intermediate layers.
+
+[^2]: https://keras.io/api/applications/vgg/
+
+For a neural network to perform image classification (which this VGG19 model has been trained to do), it must understand the image. This requires taking the raw image as input pixels and building an internal representation that converts the raw image pixels into a complex understanding of the features present within the image. This is also a reason why CNN's are able to generalize well: they’re able to capture the singularities and defining features within classes that are agnostic to background noise and other nuisances. Thus, somewhere between where the raw image is fed into the model and the output classification label, the model serves as a complex feature extractor. By accessing intermediate layers of the model, we are able to describe the content and style of input images.
+
+The content of an image is represented by the values of the intermediate feature maps. The style of an image can be described by the means and correlations across the different feature maps. We calculate a *Gram matrix* that includes this information by taking the outer product of the feature vector with itself at each location, and averaging that outer product over all locations. This Gram matrix can be calculated for a particular layer as:
 
 $$
-\text{PSNR} = 10 \cdot \log_{10} \left( \frac{\text{Peak Signal Power}}{\text{MSE}} \right)
+G_{cd}^{l} = \frac{\sum_{i,j}{F_{ijc}^{l}(x)}\sum_{i,j}{F_{ijd}^{l}(x)}}{IJ}
 $$
 
+In our code, we implement the above using _tf.linalg.einsum_.
 
-In this equation, a higher PSNR value indicates better image quality, as it signifies a lower amount of distortion or noise present in the reconstructed image compared to the reference image. Conversely, a lower PSNR value suggests higher distortion levels and reduced fidelity.
+To extract style and content, we build a model that returns the aforementioned as tensors, the class _StyleContentModel_.This model returns the gram matrix (style) of the style_layers and content of the content_layers. Finally after having the style and content extractor, we implement the style transfer algorithm. Do this by calculating the mean square error for your image's output relative to each target, then take the weighted sum of these losses.
 
-During the course of my research, I have utilized PSNR as an objective measure to evaluate the performance of various image compression techniques, algorithms, or models that I have implemented. By calculating and analyzing the PSNR values, I am able to assess the effectiveness of different approaches in maintaining image quality while achieving compression or processing goals.
+The weights of the style and content sources come to play into the _style_content_loss_ function. The function computes the total loss for style transfer combining both the style loss and content loss. The loss is calculated based on the differences between the features of the generated image and the target style and content images. The total loss is the sum of the scaled style loss and the scaled content loss. The weights and scaling factors allow us to control the impact of style and content in the output generated image.
 
-In summary, Peak Signal-to-Noise Ratio (PSNR) is a vital metric in that allows to quantitatively evaluate the quality of reconstructed or processed images. By understanding and applying PSNR calculations, I can make informed decisions about the performance of my implemented methods and their impact on image fidelity.
-
+![PRNU processor iterator](images/style_content_weights.png){width=100%}
 \pagebreak
-
 # 2. Literature Review and Related Work
-The study of image forensics has led to various methods for detecting image manipulations. Notably, PRNU-based techniques have gained attention for their effectiveness in identifying tampered images. PRNU patterns, which capture unique sensor-specific noise in images, offer valuable insights for image authenticity verification. This project builds upon these concepts and explores novel approaches to PRNU-based forgery detection.
+The strong interest on PRNU in the field of image forensics comes from its effectiveness in detecting image manipulations and tampering. They offer valuable insights for image authenticity verification. However the field has evolved and multiple research resources have been invested in these techniques.
+
+[@original] is a good starting point for any researcher in these field, this article sets one of the first precedents in using PRNU for camera attribution, in a test with 320 using what is nowadays a classical approach using a denoising filter and studying the pixel correlation. Soon after, the most evident issues are faced, such as cropped, resized pictures, etc. [@cropped_scaled] proves that the challenge can be solved using the peak-to-correlation technique PCE is a measure that quantifies the significance of the peak in a correlation map produced by comparing two images or signals, nowadays is commonly used in the analysis of cross-correlation maps, where a high peak indicates a strong correlation between the test image and a reference or template image, because a higher PCE value indicates a more reliable and significant detection of the manipulated region. The results indicate that a reliable camera ID is possible for images linearly scaled down by a factor of 0.5 or more or images with 90% or more cropped away.
+
+Fingerprint databases are interesting for digital media forensic investigators, having a large database of fingerprints that could be shared for an universal device identification is soon pursued. It has already been used in court to provide evidence in prosecution whenever a crime has been committed by taking a digital picture. In [@large_database] it is described a fast search algorithm whose worst-case complexity is still proportional to the database size but does not depend on the sensor resolution. 
+
+It is not a surprise for counter-forensic techniques to arise. In [@counter] a "triangle attack" is simulated. An adversary may attempt to fool the identification algorithm by pasting a camera fingerprint onto an image that did not come from the camera. In doing so, an innocent victim would be framed. Techniques are investigated that the victim may use to prove that the fingerprint was not inserted during the image acquisition, as the adversary claims, but was later maliciously added.
+
+Instead of impersonating, it has been tried to just simply remove the fingerprint, to make this harder for the forensics. In [@anonymization] an improvement on the existing adaptive PRNU denoising method against source camera identiﬁcation is introduced. The main objective of image source anonymization is to protect the identity of the photographer against any attempts to identify the source camera device through PRNU noise analysis. One way of impeding image source attribution is to suppress the PRNU noise as much as possible.
+
+Newly introduced devices in everyday's activities are soon in the spot for image forensics. In [@webcam] a study is performed focused on these types of devices. To identfiy the source camera, several methods are proposed such as voting, pattern correlation and PCE vectors. Interesting to note is the relation with [@compression] where the effects of image compression and its impact on PRNU recognition are studied. Until nowadays webcams are not best for image quality because of the trade-off between image integrity and efficient video streaming. [@webcam]stresses the importance of a good selective sampling that distinguishes the type of frames according to compression. Apparently, the most effective method has been “voting” and in general, results improve when increasing the sampling rate.
+
+Having mentioned the image compression issue, it is interesting to note [@cnn_compression] where, although not focused in PRNU, it is discussed the importance of picture compression for image forensic analysis. Forensic solutions rely on almost invisible traces that are often very subtle and lie in the fine details of the image under analysis. In this work they train a CNN to show how compression issues can strongly hinder forensic traces. In the work, we a strong focus is paid to the effect that JPEG has on CNN training considering different computer vision and forensic image classification problems such as JPEG compression and misalignment of the JPEG
+grid.
+
+However camera fingerprints are not the only method to detect manipulated images. In [@other_methods] an interesting review mentions different approaches and techniques over the time, such as feature extraction techniques HoG LTE, DWT, and LBP for spliced images, interquartile range IQR analysis, CNN's etc. 
+
+New approaches try to go beyond the classic PRNU approach. In [@beyond] they extract fingerprints from low and mid frequency bands, Unlike the PRNU, which resides in the high-frequency band, which resolves the fragility issue that the PRNU is unable to contend with. They develop a data-driven approach using CNN to extract the fingerprint. The experiments on various datasets also demonstrate that the new fingerprint is highly resilient to image manipulations such as rotation, gamma correction, and aggressive JPEG compression. There are several sources of imperfections that imprint traces on images at various stages of the image acquisition process.
+
+Finally, although it is beyond the scope of the present project, it is important to note the newly trend in using pictures generated by a GAN network. There is an interest in whether these pictures can be identified as such, would they leave a fingerprint? In [@gan_fingerprints] it is shown that each GAN leaves its specific fingerprint in the images it generates, just like real-world cameras mark acquired images with traces of their photo-response non-uniformity pattern. They consider three GAN architectures, Cycle-GAN, Pro-
+GAN, and Star-GAN extracting image residuals and being capable of performing camera attribution with a respectable degree of reliability. 
+
+Although not properly using PRNU, different approaches are gaining popularity in the recent years, relying on deep learning techniques rather than the heavy-duty statistics from the PRNU frameworks. It is the case of [@noiseprint where they propose a method to extract a camera model fingerprint, called _noiseprint_, where the scene content is largely suppressed and model-related artifacts are enhanced. They use a Siamese network, which is trained with pairs of image patches coming from the same or different cameras. The work is focused on forgery localization.
 
 \pagebreak
 
 # 3. Description of the Task and Dataset
 
-During the examination of the VISION dataset, we aimed to determine whether photos from various cameras exhibited distinct characteristics. This investigation was crucial to ensure that our experiments maintained fairness and weren't skewed towards specific devices.
+Looking into the VISION dataset, we want to determine whether photos from various cameras show distinct characteristics. This investigation is crucial to ensure that our experiments are fair and not skewed towards specific devices.
 
-Our Exploratory Data Analysis (EDA) delved into the distribution of pixel intensities across the dataset. The findings revealed a consistent set of characteristics, irrespective of the camera source. This statistical uniformity assures us that, statistically speaking, the choice of a particular device won't significantly influence our experiments.
+Our Exploratory Data Analysis (EDA) looked into the distribution of pixel intensities across the dataset. The findings revealed a consistent set of characteristics, irrespective of the camera source. This statistical uniformity assures us that, statistically speaking, the choice of a particular device won't significantly influence our experiments.
 
 By establishing a well-balanced representation in our dataset, we not only enhance the reliability of our experiments but also strive to maintain fairness and impartiality in our investigations.
 
-![Distribution of pixel intensity by camera device (\#fig:bb1)](images/pixel_intensity_distribution.png){width=75% style="margin-bottom: -20px;"}
+![Distribution of pixel intensity by camera device](images/pixel_intensity_distribution.png){width=75% style="margin-bottom: -20px;"}
 
 \pagebreak
 # 4. Methodology
@@ -149,8 +241,9 @@ By establishing a well-balanced representation in our dataset, we not only enhan
 
 Recognizing the challenges of extended computational tasks and the need for a robust and efficient system, a dedicated workload management framework was created to orchestrate and streamline the experimental process. One cannot afford setting off a large sequence of tests to run overnight, to be collected the morning after, to find that the sequence had failed soon after being started. In order to efficiently handle and iterate through issues arising during the experiments, a workload system was created, so the work can be handled, distributed and iterated in an efficient manner. The workload database is just a simple collection of json data, where each file serves as a directive, containing instructions for individual experiments. The workload manager takes charge, parsing these files, orchestrating the execution of experiments, and recording outcomes in concise summaries. Successful experiments are stored in a SQLite local database, whilst others resulting in error are properly labeled and set aside, so they can be studied and resolved later. This procedure avoids interruptions and optimize the limited computational time we can afford.
 
-![PRNU processor iterator (\#fig:bb1)](../../diagrams/lucid_diagram01.png){width=100%}
-\pagebreak
+![PRNU processor iterator. Diagram created with lucid.app ](../../diagrams/lucid_diagram01.png){width=100%}
+
+![Example of a workload instruction containing experiment parameters](images/workload_print_example.png){width=80%}
 
 ## 4.2 Package breakdown
 
@@ -177,10 +270,11 @@ Recognizing the challenges of extended computational tasks and the need for a ro
 |PickleHandler   | Tools to save and load Pickle objects, both locally and connected to an external server    |
 |EDAHelper       | Tools to perform exploratory data analysis (EDA) in an image dataset                       |
 
-
-![The classes package (\#fig:bb2)](../../diagrams/packages_PRNU_Processor.png){width=80%}
 \pagebreak
 
+![The classes package](../../diagrams/packages_PRNU_Processor.png){width=80%}
+
+\pagebreak
 ```{r echo=FALSE, warning=FALSE, results='asis'}
 file_path <- '../../diagrams/output_tree.txt'
 tree_contents <- readLines(file_path)
@@ -193,48 +287,92 @@ cat("```", "\n")
 
 # 5. Experimental Setting
 
-## 5.1. Loading Vision Dataset:
+## 5.1 Image transformations prior to fingerprint extraction and camera attribution
+
+Apart from basic transformations such as brightness, contrast and saturation, in our experiments we will apply the following filters. We are trying to replicate common filters and shades which are popular and commonly used in social media platforms. The below transformations are applied to the picture using the _ImageProcessor.py_ module, which takes a PIL image and performs the transformation before returning it to the _PRNUProcessor_ sequence.
+
+![The ImageProcessor module applies image transformations on the fly. Diagram created with lucid.app](../../diagrams/image_processor_diagram.png){width=100%}
+
+### Brightness and Contrast Adjustments (apply_clarendon):
+
+- Operation: Increase contrast and saturation.
+- Implementation: Applies contrast and color enhancements using the ImageEnhance module.
+
+### Bluish Tint (apply_juno):
+- Operation: Apply a bluish tint.
+- Implementation: Increases color intensity and applies a bluish tint using the ImageOps and ImageEnhance modules.
+
+### Warm Tone (apply_gingham):
+- Operation: Apply a warm tone.
+- Implementation: Enhances color and brightness to give the image a warm tone.
+
+### Brightness and Warm Tone (apply_lark):
+- Operation: Increase brightness and apply a warm tone.
+- Implementation: Adjusts brightness and color intensity to give the image a brighter and warmer appearance.
+
+### Vintage Look with Sepia Tones (apply_sierra):
+- Operation: Apply a vintage look with sepia tones.
+- Implementation: Converts the image to grayscale, applies sepia tones through contrast, brightness, and color adjustments.
+
+### Cool Tone (apply_ludwig):
+- Operation: Apply a cool tone.
+- Implementation: Decreases color intensity to give the image a cooler appearance.
+
+### Style Transfer (style_transfer):
+- Operation: Apply style transfer using a predefined style image.
+- Implementation: Uses a style transfer algorithm to blend the input image with the style image.
+
+![Example of an image filter applied at different levels of intensity (\#fig:bb2)](images/sierra_parameters.png){width=80%}
+
+## 5.2 PCE Correlations on original and transformed images
+
+The baseline and initial ground for the implementation of the PRNU algorithm for our project is the one from [@vdn] . In this study, a classic approach is replaced with a bayesian framework (github.com/sim-pez). In this work, they use _VDNet_ which uses variational inference for non-iid real-noise estimation and image denoising in a Bayesian Network. Also they implement the _VDID_ Architecture which is a denoiser using a fully convolutional neural network adopting ResBlock as the basic building block. However for the scope of our work we only use the classic statistical and PCE enhanced 2D correlation methods to perform basic classification.
+
+![Random samples on matched images from raw and transformed images (\#fig:bb2)](images/histogram_examples.png){width=80%}
+
+The sequence test performed for each workload is as follows.
+
+### 5.2.1. Loading Vision Dataset:
 Method: testPRNU
 Purpose: Load a subset of flatfield and natural images from Dresden.
 Insights: This step involves loading image data, essential for subsequent PRNU computation.
 
-## 5.2. Computing Fingerprints and Noise Residuals:
+### 5.2.2. Computing Fingerprints and Noise Residuals:
 Methods: compute_fingerprints, compute_residuals
 Purpose: Compute fingerprints from flatfield images and noise residuals from natural images.
 Insights: This step generates key components for device identification: fingerprints (k) and noise residuals (w).
 
-## 5.3. Creating Ground Truth:
+### 5.2.3. Creating Ground Truth:
 Method: gt
 Purpose: Establish ground truth for device identification.
 Insights: Ground truth (gt) provides correct device labels for evaluation.
 
-## 5.4. Computing Cross-Correlation:
+### 5.2.4. Computing Cross-Correlation:
 Methods: aligned_cc, crosscorr_2d
 Purpose: Assess similarity between fingerprints and noise residuals.
 Insights: Cross-correlation values (cc_aligned_rot) reveal patterns and similarities.
 
-## 5.5. Computing Cross-Correlation Statistics:
+### 5.2.5. Computing Cross-Correlation Statistics:
 Method: stats
 Purpose: Evaluate system performance using metrics like AUC.
 Insights: AUC for cross-correlation (stats_cc['auc']) indicates discriminatory power.
 
-## 5.6. Computing PCE (Phase-Only Correlation):
+### 5.2.6. Computing PCE (Phase-Only Correlation):
 Methods: crosscorr_2d, pce
 Purpose: Alternative method for assessing correlation between fingerprints and residuals.
 Insights: PCE values (pce_rot) offer an alternative perspective on correlation strength.
 
-## 5.7. Computing PCE Statistics:
+### 5.2.7. Computing PCE Statistics:
 Method: stats
 Purpose: Evaluate PCE performance using metrics like AUC.
 Insights: AUC for PCE (stats_pce['auc']) provides a complementary assessment.
 
-## 5.8. Final Metrics and Interpretation:
+### 5.2.8. Final Metrics and Interpretation:
 Printed Results: AUC on CC, AUC on PCE
 Purpose: Provide a summary of the system's performance.
 Insights: Comparison of AUC values for cross-correlation and PCE, assessing consistency and overall effectiveness.
 
-## Summary:
-The testPRNU method is a comprehensive script for device identification using PRNU-based techniques. It loads image data, computes fingerprints and noise residuals, establishes ground truth, and evaluates system performance through cross-correlation and PCE. The printed AUC values offer a concise summary of the system's ability to distinguish between devices based on different correlation methods. The combination of cross-correlation and PCE, along with their respective statistics, provides a robust evaluation framework for the image forensics application.
+
 
 \pagebreak
 
@@ -249,13 +387,25 @@ In this section, we delve into a thorough analysis of the experimental results. 
 \pagebreak
 
 # 8. Conclusion and Future Work
-The project concludes by summarizing the contributions and outcomes of our work. We discuss the significance of our PRNU-based approach in the context of image forensics and its potential to ensure the authenticity and integrity of digital images. As future work, we propose investigating advanced architectures, exploring adversarial training, and extending the method to video forensics.
 
-By harnessing the power of PRNU patterns, this project advances the field of image manipulation detection and enhances our ability to detect tampered images. Our approach holds promise for a range of applications that require the verification and authentication of digital visual content.
+In this project, we have:
+
+- Implemented a modular PRNU extractor algorithm, compatible with image preprocessing, and with customizable components, such as noise extraction methods.
+- Implemented a Style Transfer processor module, with customizable parameters to control the strength of the style transfer impersonated.
+- Implemented a Production-like Workload Processor for our experiments, for an efficient resources utilization and to help analysing and debugging the component performing.
+- Analysed the impact of image transformations under severe manipulations when extracting camera signatures from the aforementioned images.
+
+The project concludes that whether camera signatures are sensitive to extreme image conditions, those can be controlled by a filtering system (our project tools) to assess whether such transformation will preserve the camera signature in the resulting image. The tools can be used as a control method to preserve the camera device source authenticity by establishing a limit of the strength of the image enhance filter we want to apply.
+In terms of generative pictures using style transfer, whilst the initial expectations were that a style transfer processing would destroy the camera signature, we see that applying a very low weight of style input could preserve the fingerprint. However such a low style weight may not be interesting for a user.
+
+The areas that have been left for future work are the inheritance of camera signatures for generative images from a GAN architecture trained with pictures from a certain camera device. We assembled a GAN model builder but due to limitations in time and computer resources the exploration had to be postponed for another occasion. The reader is welcome to use the resources and tools from this project to continue these endeavours. 
 \pagebreak
 
-# Appendix 1
+# References
 ## Additional visualizations from exploratory data analysis
+
+- Link to the VISION dataset:
+https://lesc.dinfo.unifi.it/VISION/
 
 \pagebreak
 

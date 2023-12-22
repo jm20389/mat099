@@ -165,7 +165,7 @@ class EDAHelper(PickleHandler):
 
         # Adjust the hspace parameter accordingly
         fig.subplots_adjust(hspace=1)
-        fig.suptitle("Distribution of picture average pixel intensity per device", fontsize=40, y=0.92)
+        fig.suptitle("Distribution of picture average pixel intensity per device", fontsize=24, y=0.92)
 
         if save:
             plt.savefig("documentation/report/images/pixel_intensity_distribution.png")
