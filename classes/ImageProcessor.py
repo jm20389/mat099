@@ -55,50 +55,65 @@ class ImageProcessor(StyleTransferProcessor):
     # Filter implementations
     @staticmethod
     def apply_clarendon(im, intensity):
-        # Clarendon filter: Increase contrast and saturation
+        # Clarendon filter: Increase contrast and saturation, add a blue tint
         enhancer = ImageEnhance.Contrast(im)
-        im = enhancer.enhance(1.3 * intensity)
+        im = enhancer.enhance(1.5 * intensity)
         enhancer = ImageEnhance.Color(im)
-        im = enhancer.enhance(1.2 * intensity)
+        im = enhancer.enhance(1.5 * intensity)
+        im = ImageEnhance.Color(im).enhance(1.2)
         return im
 
     @staticmethod
     def apply_juno(im, intensity):
-        # Juno filter: Apply a bluish tint
-        im = ImageEnhance.Color(im).enhance(1.5)
-        return ImageOps.colorize(im.convert("L"), "#4878b6", "#e381b4").convert(im.mode)
+        # Juno filter: Apply a bluish tint, increase contrast, and add a warm tone
+        im = ImageEnhance.Color(im).enhance(1.2)
+        enhancer = ImageEnhance.Contrast(im)
+        im = enhancer.enhance(1.3 * intensity)
+        im = ImageOps.colorize(im.convert("L"), "#3a75c4", "#ff99cc").convert(im.mode)
+        return im
 
     @staticmethod
     def apply_gingham(im, intensity):
-        # Gingham filter: Apply a warm tone
+        # Gingham filter: Apply a warm tone, decrease brightness, and add a greenish tint
         enhancer = ImageEnhance.Color(im)
-        im = enhancer.enhance(1.3 * intensity)
-        return ImageEnhance.Brightness(im).enhance(1.1 * intensity)
+        im = enhancer.enhance(1.2 * intensity)
+        enhancer = ImageEnhance.Brightness(im)
+        im = enhancer.enhance(0.9 * intensity)
+        im = ImageEnhance.Color(im).enhance(1.1)
+        return im
 
     @staticmethod
     def apply_lark(im, intensity):
-        # Lark filter: Increase brightness and apply a warm tone
+        # Lark filter: Increase brightness, apply a cool tone, and add a purple tint
         enhancer = ImageEnhance.Brightness(im)
-        im = enhancer.enhance(1.2 * intensity)
-        im = ImageEnhance.Color(im).enhance(1.1 * intensity)
+        im = enhancer.enhance(1.3 * intensity)
+        im = ImageEnhance.Color(im).enhance(0.9 * intensity)
+        im = ImageEnhance.Color(im).enhance(1.2)
         return im
+
     @staticmethod
     def apply_sierra(im, intensity):
-        # Sierra filter: Apply a vintage look with sepia tones
+        # Sierra filter: Apply a vintage look with sepia tones and a yellowish tint
         grayscale_im = im.convert('L')
         sepia_im = Image.merge('RGB', [
-            ImageEnhance.Brightness(grayscale_im).enhance(0.9 * intensity),
-            ImageEnhance.Contrast(grayscale_im).enhance(1.1 * intensity),
-            ImageEnhance.Color(grayscale_im).enhance(1.3 * intensity)
+            ImageEnhance.Brightness(grayscale_im).enhance(0.6 * intensity),
+            ImageEnhance.Contrast(grayscale_im).enhance(1.4 * intensity),
+            ImageEnhance.Color(grayscale_im).enhance(1.4 * intensity)  # Adjusted color intensity
         ])
-        sepia_im = ImageEnhance.Contrast(sepia_im).enhance(1.2)
-        sepia_im = ImageEnhance.Brightness(sepia_im).enhance(0.9)
-        return sepia_im
+        sepia_im = ImageEnhance.Contrast(sepia_im).enhance(1.5)
+        sepia_im = ImageEnhance.Brightness(sepia_im).enhance(0.7)
+        im = ImageEnhance.Color(sepia_im).enhance(1.5)
+        return im
+
     @staticmethod
     def apply_ludwig(im, intensity):
-        # Ludwig filter: Apply a cool tone
-        im = ImageEnhance.Color(im).enhance(0.8 * intensity)
-        return ImageEnhance.Brightness(im).enhance(1.2 * intensity)
+        # Ludwig filter: Apply a cool tone, increase contrast, and add a teal tint
+        im = ImageEnhance.Color(im).enhance(0.9 * intensity)
+        enhancer = ImageEnhance.Contrast(im)
+        im = enhancer.enhance(1.4 * intensity)
+        im = ImageEnhance.Brightness(im).enhance(1.1 * intensity)
+        im = ImageEnhance.Color(im).enhance(1.2)
+        return im
 
     # Style Transfer implementation
     @staticmethod

@@ -21,7 +21,7 @@ output:
 biblio-style: apalike
 email: mendoza-jimenezjc@cardiff.ac.uk
 fontfamily: times
-fontsize: 10pt
+fontsize: 11.5pt
 geometry: margin=1.1in
 link-citations: yes
 bibliography: refs.bib
@@ -48,24 +48,31 @@ In recent years, the field of digital forensics has seen a growing reliance on P
 
 In the context of digital forensics, understanding the robustness of PRNU signatures is crucial. This master's thesis aims to investigate the resilience of PRNU camera signatures under various image manipulations and transformations. The study leverages the VISION dataset, a comprehensive collection comprising flatfield and natural images from a diverse set of 31 camera devices. Through systematic experimentation, we will explore the impact of different image alterations on the reliability and stability of PRNU signatures.
 
-The experimental setup involves applying a range of image manipulations that simulate popular media filters commonly used on social media platforms. These manipulations include adjustments to image enhancing, saturation, brightness, and contrast. Furthermore, the study delves into the realm of generative images through the application of a Style Transfer processor. Style Transfer introduces a unique challenge to the robustness of PRNU, as it involves the transformation of images to adopt the artistic style of another.
+The experimental setup involves applying a range of image manipulations that simulate popular media filters commonly used on social media platforms. These manipulations include adjustments to image enhancing, saturation, brightness, and contrast. Furthermore, the study looks into the realm of generative images through the application of a Style Transfer processor. Style Transfer introduces a unique challenge to the robustness of PRNU, as it involves the transformation of images to adopt the artistic style of another.
 
 The overarching goal is to evaluate how well PRNU signatures can withstand these alterations and transformations, shedding light on the limits and vulnerabilities of this forensic tool. By simulating real-world scenarios where images undergo common post-processing steps, we aim to provide insights that contribute to the enhancement of PRNU-based camera identification methodologies.
 
-Through this research, we anticipate contributing valuable knowledge to the digital forensics community, helping forensic investigators and researchers better understand the potential challenges and limitations associated with PRNU signatures in an ever-evolving digital landscape.
+We anticipate a humble contribution of knowledge to the digital forensics community, helping forensic investigators and researchers better understand the potential challenges and limitations associated with PRNU signatures in the digital landscape.
 
 ## 1.0 Main challenges
 
-One of the primary challenges in this project is the inherently computational nature of the experiments. The complexity arises from the need to process large images without compromising the integrity of the PRNU signature. Resizing, a common optimization strategy, is ruled out. Instead, to preserve the entirety of the camera signature, experiments involve carefully cropping images to obtain representative portions of the PRNU pattern, often focusing on central areas.
+One of the primary challenges in this project is the expensive demand of the experiments in terms of computer resources. The complexity comes from the need to process large images without compromising the integrity of the PRNU signature. Resizing, a common optimization strategy, is ruled out. Instead, to preserve the entirety of the camera signature, experiments involve carefully cropping images to obtain representative portions of the PRNU pattern, often focusing on central areas.
 
-In the quest for meaningful results, the processor has tirelessly executed experiments, both on a personal computer and on the _Google Colab_[^1] platform. The sheer volume of experiments, combined with the intricate nature of each trial, has translated into hundreds of hours of computation on home systems. Additionally, the _Google Colab_ platform, known for its resourcefulness in handling computational tasks, has seen the expenditure of approximately 300 computational units.
+In the quest for meaningful results, the processor has tirelessly executed experiments, both on a personal computer and on the _Google Colab_[^1] platform. The high volume of experiments, combined with the demanding nature of each trial, has resulted into hundreds of hours of computation on home systems. Additionally, the _Google Colab_ platform, known for its resourcefulness in handling computational tasks, has seen the expenditure of more than 300 computational units.
+
+The features of the home computer used in these experiments are as follows: Board: Gigabyte Technology Co., Ltd. B550M AORUS ELITE. Memory: 16,0 GiB Graphics: AMD® Radeon rx 6600 CPU: AMD® Ryzen 5 5500 × 12 Disk: 2,1TB System: Ubuntu 22.04 LTS
 
 [^1]: https://colab.research.google.com/
 
 ### Main goal
 
 In this work, we want to use a classic approach for camera identification using the PRNU strategy and applying PCE [@large_scale] to enhance the 2D correlation during the matching. Everything is described below. But we will be working with picture manipulations that mimic simulate enhancing filters that are commonly used in social media platforms. The scope is to see how the classification behaves when strong filters are applied to the natural pictures due to degradation of the signatures in the images following the manipulations.
+All the code from this work is available at the personal github repository: https://github.com/jm20389/mat099
 
+### The _VISION_ dataset
+
+Originally presented in [@vision], the _VISION_ dataset is composed by 34,427 images and 1914 videos, both in the native format and in their social version (Facebook, YouTube, and WhatsApp are considered), from 35 portable devices of 11 major brands. VISION can be exploited as benchmark for the exhaustive evaluation of several image and video forensic tools.
+For the current project, we analyzed picture intensity from the pictures on each device to assess that the features and characteristics are evenly distributed. In the majority of our test, a small subset of 3 devices were used, given the resources in time and computer power we can afford. The pictures from our tests are also transformed as described earlier.
 
 ## 1.1 Main concepts
 
@@ -142,11 +149,11 @@ The final output is a dictionary containing the cross-correlation matrix (cc) an
 
 #### 1.1.2.2 PCE
 
-It is important to use a good comparison method to detect similarities between the different patterns extracted. [@large_scale] is a well known study in the field of PRNU analysis where the *PCE* metric is used. In particular it is used for a large scale identification. The paper presents a large scale test of camera identification from sensor fingerprints, using pictures from _Flickr_[^1], an existing on-line image sharing site. One million images are tested spanning 6896 individual cameras covering 150 models, providing practical estimates of false acceptance and false rejection rates. They use the _Neyman-Pearson criterion_ to set false acceptance probability and the test statistics PCE exhibited significantly thicker tails when compared to theoretical models.
+It is important to use a good comparison method to detect similarities between the different patterns extracted. [@large_scale] is a well known study in the field of PRNU analysis where the *PCE* metric is used. In particular it is used for a large scale identification. The paper presents a large scale test of camera identification from sensor fingerprints, using pictures from _Flickr_[^2], an existing on-line image sharing site. One million images are tested spanning 6896 individual cameras covering 150 models, providing practical estimates of false acceptance and false rejection rates. They use the _Neyman-Pearson criterion_ to set false acceptance probability and the test statistics PCE exhibited significantly thicker tails when compared to theoretical models.
 
 Our test and main method to perform camera attribution using PRNU will rely on the *PCE (Peak-to-Correlation Energy)*. It is a metric used to evaluate the significance of a peak in a cross-correlation map. This parameter is calculated by correlating two images (complete correlation for all possible displacements) and dividing the energy (squared value) in the maximum by the average energy calculated after "removing" the peak surroundings. The PCE is calculated as the ratio of the squared peak height to the correlation energy in the surrounding area, excluding a neighborhood around the peak. Mathematically, it is defined as: $\text{PCE} = \frac{\text{Peak}^2}{\text{Energy in the Surrounding Area}}$
 
-[^1]: https://www.flickr.com/
+[^2]: https://www.flickr.com/
 
 #### 1.1.2.3 Final statistics
 
@@ -175,15 +182,15 @@ In our project, from the VISION dataset, for each camera device we have two sets
 
 ### 1.1.3 Style Transfer
 
-Our interest in studying style transfer comes from the recent popularity in social media to use this technique as a picture "enhancing" filter. Therefore we wish to incorporate this option as another image filter we can perform tests with. The "Neural style transfer" is an optimization technique that is used to take two pictures, one being the target picture to apply the effect (content) and another picture that will represent the artistic effect we want to impersonate (style picture, such as an artwork from a famous painter)—and blend them together so the output image looks like the content image, but with the style from the style reference image.
+Our interest in studying style transfer comes from the recent popularity in social media to use this technique as a picture "enhancing" filter. Therefore we wish to incorporate this option as another image filter we can perform tests with. The "Neural style transfer" is an optimization technique that is used to take two pictures, one being the target picture to apply the effect (content) and another picture that will represent the artistic effect we want to impersonate (style picture, such as an artwork from a famous painter)—and blend them together so the output image looks like the content image, but with the style from the style reference image. *We have not used external sources to generate the style transfer pictures*, but instead, we have developed our own style transfer picture generator module, which can be parameterized, _StyleTransferProcessor.py_ . The Style Transfer Processor module is compatible with the rest of the framework, being inherited by the upper class _ImageProcessor.py_, so that the Image Processor can handle these transformations on the fly, same as with the rest of transformations, creating a picture in memory and forwarding it to the later PRNU Processor, saving time, energy and memory. We have developed our Style Transfer Processor following the guidelines from TensorFlow[^4]
 
-_VGG-19_[^2] is a known convolutional neural network whose structure contains 19 layers, a pretrained network architecture. In this project we only use a few layers from the model, for example discarding the ones used for classification purposes, as those are not useful for the style transfer task, whilst we select the ones that extract features that are useful to mimic the artistic style from the style picture source. These are the intermediate layers of the model that get the content and style representations of the image. Starting from the network's input layer, the first few layer activations represent low-level features, such as: edges, textures, appearance... As one keeps going through the network, the final layers represent higher-level features like objects or body parts. These intermediate layers are necessary to define the representation of content and style from the images. Given an input image, we try to match the corresponding style and content target representations at these intermediate layers.
+_VGG-19_[^3] is a known convolutional neural network whose structure contains 19 layers, a pretrained network architecture. In this project we only use a few layers from the model, for example discarding the ones used for classification purposes, as those are not useful for the style transfer task, whilst we select the ones that extract features that are useful to mimic the artistic style from the style picture source. These are the intermediate layers of the model that get the content and style representations of the image. Starting from the network's input layer, the first few layer activations represent low-level features, such as: edges, textures, appearance... As one keeps going through the network, the final layers represent higher-level features like objects or body parts. These intermediate layers are necessary to define the representation of content and style from the images. Given an input image, we try to match the corresponding style and content target representations at these intermediate layers.
 
-[^2]: https://keras.io/api/applications/vgg/
+[^3]: https://keras.io/api/applications/vgg/
 
 For a neural network to perform image classification (which this VGG19 model has been trained to do), it must understand the image. This requires taking the raw image as input pixels and building an internal representation that converts the raw image pixels into a complex understanding of the features present within the image. This is also a reason why CNN's are able to generalize well: they’re able to capture the singularities and defining features within classes that are agnostic to background noise and other nuisances. Thus, somewhere between where the raw image is fed into the model and the output classification label, the model serves as a complex feature extractor. By accessing intermediate layers of the model, we are able to describe the content and style of input images.
 
-The content of an image is represented by the values of the intermediate feature maps. The style of an image can be described by the means and correlations across the different feature maps. We calculate a *Gram matrix* that includes this information by taking the outer product of the feature vector with itself at each location, and averaging that outer product over all locations. This Gram matrix can be calculated for a particular layer as:
+The content of an image is represented by the values of the intermediate feature maps. The style of an image can be described by the means and correlations across the different feature maps. We calculate a *Gram matrix*[^4] that includes this information by taking the outer product of the feature vector with itself at each location, and averaging that outer product over all locations. This Gram matrix can be calculated for a particular layer as:
 
 $$
 G_{cd}^{l} = \frac{\sum_{i,j}{F_{ijc}^{l}(x)}\sum_{i,j}{F_{ijd}^{l}(x)}}{IJ}
@@ -196,7 +203,10 @@ To extract style and content, we build a model that returns the aforementioned a
 The weights of the style and content sources come to play into the _style_content_loss_ function. The function computes the total loss for style transfer combining both the style loss and content loss. The loss is calculated based on the differences between the features of the generated image and the target style and content images. The total loss is the sum of the scaled style loss and the scaled content loss. The weights and scaling factors allow us to control the impact of style and content in the output generated image.
 
 ![PRNU processor iterator](images/style_content_weights.png){width=100%}
+[^4]: https://www.tensorflow.org/tutorials/generative/style_transfer
+
 \pagebreak
+
 # 2. Literature Review and Related Work
 The strong interest on PRNU in the field of image forensics comes from its effectiveness in detecting image manipulations and tampering. They offer valuable insights for image authenticity verification. However the field has evolved and multiple research resources have been invested in these techniques.
 
@@ -292,6 +302,7 @@ cat("```", "\n")
 Apart from basic transformations such as brightness, contrast and saturation, in our experiments we will apply the following filters. We are trying to replicate common filters and shades which are popular and commonly used in social media platforms. The below transformations are applied to the picture using the _ImageProcessor.py_ module, which takes a PIL image and performs the transformation before returning it to the _PRNUProcessor_ sequence.
 
 ![The ImageProcessor module applies image transformations on the fly. Diagram created with lucid.app](../../diagrams/image_processor_diagram.png){width=100%}
+![Examples of the different filters being used in the experiments](images/filter_operations.png){width=80%}
 
 ### Brightness and Contrast Adjustments (apply_clarendon):
 
@@ -328,7 +339,7 @@ Apart from basic transformations such as brightness, contrast and saturation, in
 
 The baseline and initial ground for the implementation of the PRNU algorithm for our project is the one from [@vdn] . In this study, a classic approach is replaced with a bayesian framework (github.com/sim-pez). In this work, they use _VDNet_ which uses variational inference for non-iid real-noise estimation and image denoising in a Bayesian Network. Also they implement the _VDID_ Architecture which is a denoiser using a fully convolutional neural network adopting ResBlock as the basic building block. However for the scope of our work we only use the classic statistical and PCE enhanced 2D correlation methods to perform basic classification.
 
-![Random samples on matched images from raw and transformed images (\#fig:bb2)](images/histogram_examples.png){width=80%}
+![Random snapshots during the tests show that the correlation peak changes](images/histogram_examples.png){width=80%}
 
 The sequence test performed for each workload is as follows.
 
@@ -377,12 +388,66 @@ Insights: Comparison of AUC values for cross-correlation and PCE, assessing cons
 \pagebreak
 
 # 6. Results
-Our experimental results demonstrate the efficacy of our PRNU-based approach in detecting manipulated images. We provide a detailed analysis of detection accuracy for different types of manipulations, showcasing the strengths and limitations of our method. The results highlight the potential of PRNU-based techniques to contribute significantly to the field of image forensics.
+
+## 6.1 Device selection 
+
+Due to limitations in terms of time and computer resources, the tests have been performed using 3 devices from the VISION dataset. Devices 1, 2 and 3. In the exploratory data analysis performed earlier, and in the jupyter notebooks supplied alongside the code, we can see that the number of picture of devices and the content of the images should not be critically relevant. Therefore the first three devices were chosen by default. A subset of experiments was repeated choosing a different set of 3 devices showing similar results.
+
+A basic camera attribution test was initially performed without applying any transformation to the pictures from the aforementioned devices. The classification was successful and the reference values are *0.9* AUC for cross correlation and *0.94* on AUC for PCE correlation. These are the ground values we are using for comparison, after which we start applying filters and image enhancing transformations to see how these classification metrics evolve.
+
+## 6.2 Basic and compound picture enhancing
+
+![Image filter transformations on devices 1 to 3](images/experiment_5.png){width=80%}
+
+The results show a range of different input parameters. The range of values are different depending on the transformation, this has been estimated by empirical testing to see at which range the modifications start showing a significant effect. Also it is important to mention that some of the extreme values are different, because at the time of pushing, the PCE energy may not yield a result, as the image has so much distortion that no pixel correlation was possible. The above data shows the playground where parameter modifications could have a measurable impact.
+
+\pagebreak
+
+![Style Transfer applied different weights, for devices 1 to 3](images/style_transfer_auc.png){width=80%}
+
+Although initially only three sets of style and weight content sets were planned (low, medium and high, as seen in the graph), the low results yielded slightly higher results than expected, therefore two more sets of values were attempted (in between low and medium values).
+
+intensities = {
+    'low2':     {'style': 1e-9, 'content': 1e11}
+    'low3':     {'style': 1e-6, 'content': 1e9 }
+    'low':      {'style': 1e-7, 'content': 1e10}
+    ,'medium' : {'style': 1e-3, 'content': 1e3 }
+    ,'high' :   {'style': 0.9,  'content': 1e4 }
+}
 
 \pagebreak
 
 # 7. Analysis
-In this section, we delve into a thorough analysis of the experimental results. We discuss the performance of our approach across different manipulation scenarios and provide insights into the factors influencing its accuracy. Additionally, we compare our method with existing techniques, emphasizing its advantages in terms of detection rates and computational efficiency.
+
+The first and evident thing to take into account is that if our metrics drop below 50%, then the classifier is no better than a random classifier, and therefore the classification is not successful, as it is due to luck or coincidence. Looking at the overall results, the PRNU signature seems resilient under the range of values tested, with the singularities that we are about to mention.
+
+## 7.1 Filter Effects on PRNU:
+
+Saturation: The saturation seems to preserve the signatures without much issue. This is understandable given the nature of three array slices of a picture, the saturation tends to increase values in one of the slices.
+
+Brightness: Low levels of brightness seem to have a more meaningful impact degrading the signatures.
+
+Contrast: It poses a low effect, same way both increasing and decreasing, and always staying above 90%
+
+From the rest of filters applied, _ludwig_ and _lark_ seems to have a strong impact, specially the more we increase the intensity parameter. The fact that these filters produce a "wash" effect involves a combination of the filters above, so the degradation adds up. Probably, also increasing saturation makes us loose more details.
+
+On the contrary, the sepia filter seems to preserve the classification values more stable.
+
+From a quantitative point of view, in general we conclude that the lowest values achieved are around 85%, which is assumible if our scope is to preserve image integrity in terms of camera signatures. A combination of brightness and contrast seems to have the biggest impact.
+
+In terms of the user experience, we can say that a social media platform can offer filters that have a significant visual impact, with the desired effect, at the same time that is preserving picture metadata that could be later be used for forensic analysis. The range of values that we offer seem to be sufficient for a good user experience.
+
+Small Impact: Filters that generally enhance or modify certain visual aspects while preserving overall image structure may have a relatively small impact on the PRNU signature. Examples include color filters or mild sharpening filters.
+Increased Impact with Contrast Reduction: Filters that significantly reduce contrast might have a more noticeable impact on PRNU. Contrast reduction alters the distribution of pixel intensities, potentially affecting the unique fingerprint left by the sensor.
+Contrast and PRNU Sensitivity:
+
+Contrast Changes and Pattern Distortion: PRNU is sensitive to changes in the overall pattern of pixel intensities. Filters decreasing contrast may distort the original patterns captured by the sensor, leading to a more noticeable impact on the PRNU signature.
+Localized Changes: Filters that reduce contrast in specific regions or frequency bands may affect the spatial characteristics of the PRNU signature more than filters with a global impact.
+
+
+## 7.2 Classification on Style Transfer Pictures
+
+We understand that a style transfer picture is a new picture that has been generated by a neural network. The fact that a convolutional neural network produces a fingerprint is a different topic as we mentioned in section 2, but that would have little to do with the PRNU camera fingerprint we are discussing in this work. Therefore the fact that the test classification results drop to the levels of a random classifier is somehow expect. The interest however comes from the weights mixture, style and content weights. We can see that at very low levels of style weight, the classification performance is greatly reduced but still still not distasteful. The conclusion here is that at the beginning of the image composition, when the initial features of the image are being extracted, the camera signature may still be present. However, when we look at the picture tests from section 1.1.3 using these weights, we see that for a platform user, having a filter at such a low level, in exchange or sacrifice of preserving the camera signature, would not be of interest as it would not be worthy to apply the filter or transformation in the first place. It would be interesting to explore the evolution of picture noise when performing the feature extraction in the style transfer algorithm to see at what time the signature is vanished.
 
 \pagebreak
 
@@ -396,16 +461,18 @@ In this project, we have:
 - Analysed the impact of image transformations under severe manipulations when extracting camera signatures from the aforementioned images.
 
 The project concludes that whether camera signatures are sensitive to extreme image conditions, those can be controlled by a filtering system (our project tools) to assess whether such transformation will preserve the camera signature in the resulting image. The tools can be used as a control method to preserve the camera device source authenticity by establishing a limit of the strength of the image enhance filter we want to apply.
-In terms of generative pictures using style transfer, whilst the initial expectations were that a style transfer processing would destroy the camera signature, we see that applying a very low weight of style input could preserve the fingerprint. However such a low style weight may not be interesting for a user.
+In terms of generative pictures using style transfer, whilst the initial expectations were that a style transfer processing would destroy the camera signature, we see that applying a very low weight of style input could preserve the fingerprint. However such a low style weight may not be interesting for an user.
 
 The areas that have been left for future work are the inheritance of camera signatures for generative images from a GAN architecture trained with pictures from a certain camera device. We assembled a GAN model builder but due to limitations in time and computer resources the exploration had to be postponed for another occasion. The reader is welcome to use the resources and tools from this project to continue these endeavours. 
 \pagebreak
 
 # References
-## Additional visualizations from exploratory data analysis
 
 - Link to the VISION dataset:
 https://lesc.dinfo.unifi.it/VISION/
+
+- Github repository from Simone Pezzulla and Abdullah Chaudhry
+https://github.com/sim-pez/prnu
 
 \pagebreak
 
