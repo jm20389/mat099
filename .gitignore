@@ -4,6 +4,10 @@ backup/
 test/
 documentation/image_forensics
 documentation/example_dissertation_cardiff_univ_report.pdf
+documentation/report/groupReport_G12.log
+documentation/report/groupReport_G12.Rmd
+documentation/report/groupReport_G12.tex
+documentation/report/original_documentation_template.Rmd
 resources/
 data-pickle/
 output/
