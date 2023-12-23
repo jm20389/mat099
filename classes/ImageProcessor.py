@@ -98,7 +98,7 @@ class ImageProcessor(StyleTransferProcessor):
         sepia_im = Image.merge('RGB', [
             ImageEnhance.Brightness(grayscale_im).enhance(0.6 * intensity),
             ImageEnhance.Contrast(grayscale_im).enhance(1.4 * intensity),
-            ImageEnhance.Color(grayscale_im).enhance(1.4 * intensity)  # Adjusted color intensity
+            ImageEnhance.Color(grayscale_im).enhance(1.4 * intensity)
         ])
         sepia_im = ImageEnhance.Contrast(sepia_im).enhance(1.5)
         sepia_im = ImageEnhance.Brightness(sepia_im).enhance(0.7)
@@ -169,7 +169,7 @@ class ImageProcessor(StyleTransferProcessor):
         image = Image.open(path).convert('RGB')
         image.save(temp_filename, 'JPEG', quality=quality)
 
-        temp_image = Image.open(temp_filename).convert(image.mode)  # Ensure the same color space as the original image
+        temp_image = Image.open(temp_filename).convert(image.mode)
         ela_image = ImageChops.difference(image, temp_image)
 
         extrema = ela_image.getextrema()
@@ -186,8 +186,7 @@ class ImageProcessor(StyleTransferProcessor):
     def convert_to_ela_image(path,quality):
         original_image = Image.open(path).convert('RGB')
 
-        #resaving input image at the desired quality
-        resaved_file_name = 'resaved_image.jpg'     #predefined filename for resaved image
+        resaved_file_name = 'resaved_image.jpg'
         original_image.save(resaved_file_name,'JPEG',quality=quality)
         resaved_image = Image.open(resaved_file_name)
 

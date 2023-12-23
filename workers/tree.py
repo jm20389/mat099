@@ -1,6 +1,5 @@
 import os
 
-# Set the path for the output text file
 output_file_path = "diagrams/output_tree.txt"
 
 # Excluded directories and files
@@ -41,11 +40,9 @@ shorten_folders = [
 
 ]
 
-# Get the project contents and exclude specified items
 project_contents = sorted(os.listdir())
 project_contents = [content for content in project_contents if content not in excluded_contents]
 
-# Open the output file for writing
 with open(output_file_path, 'w') as output_file:
     for folder in project_contents:
         if '.' in folder:

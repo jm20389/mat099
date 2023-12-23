@@ -75,8 +75,6 @@ class EDAHelper(PickleHandler):
 
         stats['filename'] = image_path.split('/')[-1]
 
-        # Add more statistics as needed
-
         return stats
 
     @staticmethod
@@ -145,11 +143,9 @@ class EDAHelper(PickleHandler):
 
     @staticmethod
     def intensityDistributionPerDevice(df, save=False):
-        # Create the main figure:
         fig = plt.figure(figsize=(15, 20))
 
         devices = list(df.Device.unique())
-        # Create a collection of axes names for the following subplot:
         axes = [category + "_ax" for category in devices]
 
         for i in range(len(devices)):
@@ -163,7 +159,6 @@ class EDAHelper(PickleHandler):
             axes[i].set_xlim([0, 250])
             axes[i].set_title(devices[i], fontsize=15)
 
-        # Adjust the hspace parameter accordingly
         fig.subplots_adjust(hspace=1)
         fig.suptitle("Distribution of picture average pixel intensity per device", fontsize=24, y=0.92)
 
