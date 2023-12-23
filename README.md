@@ -51,7 +51,7 @@ Here's an example to generate workloads:
 This command generates workloads for experiment 7.
 
 # Bibliography
-
+- See our [report](/documentation/report/report.pdf).
 
 
 
